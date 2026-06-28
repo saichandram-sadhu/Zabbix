@@ -261,10 +261,56 @@ Ab aap left panel me `Zabbix Database` → `Databases` → `zabbix` → `Schemas
 <details>
 <summary><b>📌 DBeaver Install & Connect (Windows/Mac/Linux)</b></summary>
 
-1. Download karein: [https://dbeaver.io/download/](https://dbeaver.io/download/)
-2. Install karke open karein
-3. **New Database Connection** click karein → **PostgreSQL** select karein
-4. Connection settings:
+#### Linux par Install karne ke 3 tarike:
+
+**Option A: Snap se install (Sabse aasan — Ubuntu/Debian):**
+```bash
+sudo snap install dbeaver-ce
+```
+Install hone ke baad terminal me `dbeaver-ce` type karke ya Application Menu se open karein.
+
+**Option B: APT se install (Ubuntu/Debian — Official Repo):**
+```bash
+# DBeaver GPG key add karein
+curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/dbeaver.gpg
+
+# Repository add karein
+echo "deb [signed-by=/usr/share/keyrings/dbeaver.gpg] https://dbeaver.io/debs/dbeaver-ce /" | sudo tee /etc/apt/sources.list.d/dbeaver.list
+
+# Install karein
+sudo apt update && sudo apt install dbeaver-ce -y
+```
+
+**Option C: .deb file se direct install (Manual download):**
+```bash
+# Latest .deb file download karein
+wget https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
+
+# Install karein
+sudo dpkg -i dbeaver-ce_latest_amd64.deb
+
+# Agar dependency error aaye toh fix karein
+sudo apt install -f -y
+```
+
+#### Windows par Install:
+1. [https://dbeaver.io/download/](https://dbeaver.io/download/) par jaayein
+2. **Windows (installer)** button click karein
+3. `.exe` file download hogi → Double-click karke Next → Next → Install karein
+
+#### Mac par Install:
+```bash
+brew install --cask dbeaver-community
+```
+Ya website se `.dmg` file download karke install karein.
+
+---
+
+#### DBeaver me Zabbix Database se Connect karein:
+1. DBeaver open karein
+2. Top-left me **`New Database Connection`** (plug icon 🔌) click karein
+3. Search me **`PostgreSQL`** type karein → Select karein → **Next**
+4. Connection settings fill karein:
 
 | Field | Value |
 |---|---|
@@ -274,7 +320,12 @@ Ab aap left panel me `Zabbix Database` → `Databases` → `zabbix` → `Schemas
 | Username | `zabbix` |
 | Password | `StrongPassword@123` |
 
-5. **Test Connection** click karein → Success aaye toh **Finish** karein
+5. **Test Connection** click karein
+   - Pehli baar me ye PostgreSQL JDBC driver download karne ko bolega → **Download** click karein
+   - Phir "Connected" message aayega ✅
+6. **Finish** click karein — Done! 🎉
+
+Ab left panel me `zabbix` → `Schemas` → `public` → `Tables` expand karke saari Zabbix tables dekh sakte hain!
 
 </details>
 
