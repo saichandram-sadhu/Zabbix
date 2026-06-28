@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 200" width="920">
+  <defs>
+    <linearGradient id="dfBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="dfAgent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="dfProxy" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+    <linearGradient id="dfServer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="920" height="200" fill="url(#dfBg)" rx="14"/>
+
+  <!-- Title -->
+  <text x="460" y="28" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="14" font-weight="700" fill="#e2e8f0" letter-spacing="2">HOW DATA FLOWS — STEP BY STEP</text>
+  <line x1="280" y1="38" x2="640" y2="38" stroke="#334155" stroke-width="1"/>
+
+  <!-- ══════ STEP 1: Agent ══════ -->
+  <rect x="30" y="55" width="230" height="75" rx="10" fill="url(#dfAgent)">
+    <animate attributeName="opacity" values="1;0.85;1" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  <text x="145" y="78" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="20" fill="#fff">📡</text>
+  <text x="145" y="100" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff">Client VM / Host</text>
+  <text x="145" y="118" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" fill="#e9d5ff">Zabbix Agent installed</text>
+
+  <!-- Step 1 label -->
+  <rect x="55" y="140" width="180" height="48" rx="6" fill="#1e293b" stroke="#7c3aed" stroke-width="1"/>
+  <text x="145" y="158" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" font-weight="700" fill="#a78bfa">STEP 1</text>
+  <text x="145" y="176" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" fill="#94a3b8">Collects CPU, RAM, Disk, Net</text>
+
+  <!-- ══════ Arrow 1: Agent → Proxy ══════ -->
+  <line x1="260" y1="92" x2="330" y2="92" stroke="#475569" stroke-width="2"/>
+  <polygon points="333,92 325,87 325,97" fill="#475569"/>
+  <!-- Animated dot -->
+  <circle r="5" fill="#a78bfa">
+    <animate attributeName="cx" values="265;328" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="92;92" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <text x="295" y="84" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="9" fill="#64748b">LOCAL LAN</text>
+
+  <!-- ══════ STEP 2: Proxy ══════ -->
+  <rect x="335" y="55" width="230" height="75" rx="10" fill="url(#dfProxy)">
+    <animate attributeName="opacity" values="1;0.85;1" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+  </rect>
+  <text x="450" y="78" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="20" fill="#fff">🐳</text>
+  <text x="450" y="100" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff">Zabbix Proxy</text>
+  <text x="450" y="118" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" fill="#dcfce7">Docker Container (Active)</text>
+
+  <!-- Step 2 label -->
+  <rect x="360" y="140" width="180" height="48" rx="6" fill="#1e293b" stroke="#16a34a" stroke-width="1"/>
+  <text x="450" y="158" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" font-weight="700" fill="#4ade80">STEP 2</text>
+  <text x="450" y="176" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" fill="#94a3b8">Buffers, compresses, encrypts</text>
+
+  <!-- ══════ Arrow 2: Proxy → Server ══════ -->
+  <line x1="565" y1="92" x2="635" y2="92" stroke="#475569" stroke-width="2"/>
+  <polygon points="638,92 630,87 630,97" fill="#475569"/>
+  <!-- Animated dot -->
+  <circle r="5" fill="#4ade80">
+    <animate attributeName="cx" values="570;633" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="92;92" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Encrypted tunnel label -->
+  <rect x="575" y="72" width="50" height="16" rx="4" fill="#164e63"/>
+  <text x="600" y="84" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="8" font-weight="600" fill="#67e8f9">🔒 VPN</text>
+
+  <!-- ══════ STEP 3: Server ══════ -->
+  <rect x="640" y="55" width="250" height="75" rx="10" fill="url(#dfServer)">
+    <animate attributeName="opacity" values="1;0.85;1" dur="3s" begin="1s" repeatCount="indefinite"/>
+  </rect>
+  <text x="765" y="78" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="20" fill="#fff">🧠</text>
+  <text x="765" y="100" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff">Zabbix Server (NOC)</text>
+  <text x="765" y="118" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" fill="#bfdbfe">Central Processing Engine</text>
+
+  <!-- Step 3 label -->
+  <rect x="665" y="140" width="200" height="48" rx="6" fill="#1e293b" stroke="#1d4ed8" stroke-width="1"/>
+  <text x="765" y="158" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" font-weight="700" fill="#60a5fa">STEP 3</text>
+  <text x="765" y="176" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="10" fill="#94a3b8">Stores, evaluates triggers, alerts</text>
+</svg>

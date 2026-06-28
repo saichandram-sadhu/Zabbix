@@ -47,17 +47,9 @@ Imagine you manage **50+ servers, switches, and firewalls** across multiple clie
 
 ### How Data Flows (Step-by-Step)
 
-```
-  ┌─────────────┐         ┌─────────────┐         ┌─────────────┐
-  │  🖥️ Client   │  LOCAL   │  🐳 Zabbix   │ INTERNET │  🧠 Zabbix   │
-  │  VM / Host   │ ──────→ │    Proxy     │ ═══════→ │    Server   │
-  │  (Agent)     │  LAN    │  (Docker)    │ Tailscale│   (NOC)     │
-  └─────────────┘         └─────────────┘         └─────────────┘
-       Step 1                  Step 2                  Step 3
-   Agent collects         Proxy buffers &          Server stores,
-   CPU, RAM, Disk         compresses data          evaluates triggers
-   metrics locally        for transmission         & sends alerts
-```
+<div align="center">
+  <img src="data_flow.svg" alt="Zabbix Data Flow: Agent → Proxy → Server" />
+</div>
 
 ---
 
