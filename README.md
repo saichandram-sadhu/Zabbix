@@ -727,6 +727,41 @@ To eliminate standard Zabbix noise where every dynamic interface status change (
 - The global macro `{$IFCONTROL}` is set to `0`. This disables link-down triggers for all discovered interfaces on all hosts by default.
 - Host-level overrides (`{$IFCONTROL:"<interface-name>"} = 1`) are configured on critical ports (e.g., `port1`/`port2` on Firewalls/Switches, and `Ethernet0` on Windows Servers). Link-down alerts will **only** trigger on these specified critical links.
 
+<details>
+<summary><b>📖 Step-by-Step: How to Enable Alerting for Critical Interfaces on Future Devices</b></summary>
+
+When you add a new network switch, firewall, or server, Zabbix dynamically discovers all network interfaces. By default, **no link-down alerts will trigger** (zero noise setup). To enable alert notifications for only the critical ports (uplinks, WAN links, trunk ports), follow this simple procedure:
+
+#### Step 1: Identify the exact Interface Name
+1. Log in to the Zabbix Web UI.
+2. Go to **`Monitoring`** → **`Hosts`** (or **`Data collection`** → **`Hosts`**).
+3. Find your new host, and click on its **`Items`**.
+4. Look for the discovered interface name (e.g. `WAN1`, `port1`, `Ethernet0`, or `GigabitEthernet1/0/24`). Ensure you copy the **exact name** of the port.
+
+#### Step 2: Configure the Host Override Macro
+1. Go to **`Data collection`** → **`Hosts`** and click on your target host name.
+2. Navigate to the **`Macros`** tab.
+3. Under **`Inherited and host macros`** (or **`Host macros`**), click **`Add`**.
+4. Define the macro and value as follows:
+
+| Macro | Value | Description |
+|---|---|---|
+| `{$IFCONTROL:"<interface-name>"}` | `1` | Replace `<interface-name>` with your exact port name (e.g. `{$IFCONTROL:"WAN1"}`) |
+
+*Example values:*
+- For a new Firewall uplink: `{$IFCONTROL:"WAN1"}` → `1`
+- For a critical Switch trunk port: `{$IFCONTROL:"GigabitEthernet1/0/24"}` → `1`
+- For a second server NIC: `{$IFCONTROL:"Ethernet 2"}` → `1`
+
+5. Click **`Update`** (or **`Add`**) to save the configuration.
+
+#### How it works:
+Zabbix's interface discovery templates use the check `{$IFCONTROL:"{#IFNAME}"}=1` to determine whether to enable the trigger. Since the global `{$IFCONTROL}` macro is set to `0`, Zabbix checks:
+- If a host macro `{$IFCONTROL:"{#IFNAME}"}` exists, it overrides the global default and evaluates to `1` (Alarms Enabled ✅).
+- If it does not exist, it falls back to the global `{$IFCONTROL} = 0` (Alarms Blocked ❌).
+
+</details>
+
 ### 🛡️ 4. Server Security Hardening Summary
 - **UFW Firewall**: Blocked all ports except HTTP/S (80/443), Trapper (10051), and SSH (22).
 - **Brute Force Protection**: Implemented `fail2ban` for automated blocking of SSH brute-force attackers.
