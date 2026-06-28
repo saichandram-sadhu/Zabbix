@@ -76,10 +76,12 @@ docker compose ps
 
 ### Access the Dashboard
 
-| Service | URL | Credentials |
+| Service | Access Method | Credentials |
 |---|---|---|
-| 🌐 **Zabbix Web UI** | `http://localhost` | Username: `Admin` / Password: `zabbix` |
-| 🗄️ **PostgreSQL** | `localhost:5432` | User: `zabbix` / Password: `StrongPassword@123` |
+| 🌐 **Zabbix Web UI** | Browser → `http://localhost` | Username: `Admin` / Password: `zabbix` |
+| 🗄️ **PostgreSQL** | ⚠️ Database Client only (NOT browser!) → `localhost:5432` | User: `zabbix` / Password: `StrongPassword@123` |
+
+> **⚠️ Important:** PostgreSQL ek database service hai, ise browser me open **nahi** kar sakte! Iske liye `psql` (terminal) ya **pgAdmin** (GUI tool) use karein. Neeche detail me bataya hai ⬇️
 
 ### Enable the Custom Companies Module
 1. Log in to Zabbix Web UI
@@ -166,6 +168,148 @@ Header always set X-Frame-Options "SAMEORIGIN"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 ServerTokens Prod
 ServerSignature Off
+```
+
+---
+
+## 🗄️ PostgreSQL Database Management (Complete Guide)
+
+> **⚠️ PostgreSQL ek database service hai — ise browser me open NAHI kar sakte!**
+> Browser sirf HTTP web pages dikhata hai, lekin PostgreSQL apna khud ka binary protocol use karta hai (port 5432). Isko access karne ke liye dedicated database client tools chahiye.
+
+### Method 1: Terminal se Access (psql — Command Line)
+
+Agar aap sirf quick query run karna chahte hain:
+```bash
+# Zabbix database me login karein
+PGPASSWORD=StrongPassword@123 psql -h localhost -U zabbix -d zabbix
+
+# Ab aap SQL queries run kar sakte hain, jaise:
+# SELECT * FROM hosts LIMIT 5;
+# \dt   (sab tables dikhega)
+# \q    (exit)
+```
+
+### Method 2: pgAdmin 4 se Access (GUI — Recommended for Beginners)
+
+pgAdmin ek beautiful web-based GUI tool hai jo aapko database ko visually manage karne deta hai — tables dekhna, queries likhna, backups lena, sab kuch mouse se!
+
+<details>
+<summary><b>📌 Step 1: pgAdmin Install karein (Ubuntu/Debian)</b></summary>
+
+```bash
+# pgAdmin repository add karein
+curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list'
+
+sudo apt update
+
+# Web mode install karein (browser me open hoga)
+sudo apt install pgadmin4-web -y
+
+# Setup script chalayein (email aur password set karein)
+sudo /usr/pgadmin4/bin/setup-web.sh
+```
+Setup ke time ye puchega:
+- **Email**: Apna email daalein (e.g. `admin@zabbix.local`)
+- **Password**: Apna login password set karein
+
+</details>
+
+<details>
+<summary><b>📌 Step 2: pgAdmin Open karein</b></summary>
+
+Browser me open karein:
+```
+http://localhost/pgadmin4
+```
+Ya agar Zabbix Web port 80 par chal raha hai toh:
+```
+http://localhost:5050
+```
+
+Login karein apne setup wale email aur password se.
+
+</details>
+
+<details>
+<summary><b>📌 Step 3: Zabbix Database se Connect karein</b></summary>
+
+1. pgAdmin me left panel me **`Servers`** par right-click karein → **`Register`** → **`Server`**
+2. **General** tab me:
+   - **Name**: `Zabbix Database`
+3. **Connection** tab me ye values daalein:
+
+| Field | Value |
+|---|---|
+| Host name/address | `localhost` |
+| Port | `5432` |
+| Maintenance database | `zabbix` |
+| Username | `zabbix` |
+| Password | `StrongPassword@123` |
+
+4. ✅ **Save password** checkbox enable karein
+5. **Save** click karein — Connected! 🎉
+
+Ab aap left panel me `Zabbix Database` → `Databases` → `zabbix` → `Schemas` → `public` → `Tables` expand karke saari tables dekh sakte hain!
+
+</details>
+
+### Method 3: DBeaver se Access (Desktop GUI — Cross-Platform)
+
+<details>
+<summary><b>📌 DBeaver Install & Connect (Windows/Mac/Linux)</b></summary>
+
+1. Download karein: [https://dbeaver.io/download/](https://dbeaver.io/download/)
+2. Install karke open karein
+3. **New Database Connection** click karein → **PostgreSQL** select karein
+4. Connection settings:
+
+| Field | Value |
+|---|---|
+| Host | `localhost` (ya server ka IP `192.168.1.178`) |
+| Port | `5432` |
+| Database | `zabbix` |
+| Username | `zabbix` |
+| Password | `StrongPassword@123` |
+
+5. **Test Connection** click karein → Success aaye toh **Finish** karein
+
+</details>
+
+### Database Password Kaise Change Karein (Step-by-Step)
+
+> **⚠️ WARNING:** Password change karte waqt Zabbix Server aur Web UI ka bhi password update karna zaroori hai, warna connection toot jayega!
+
+**Step 1:** Pehle PostgreSQL me directly password change karein:
+```bash
+PGPASSWORD=StrongPassword@123 psql -h localhost -U zabbix -d zabbix -c "ALTER USER zabbix WITH PASSWORD 'YourNewSecurePassword';"
+```
+
+**Step 2:** `docker-compose.yml` file me **teeno jagah** purana password replace karein:
+```yaml
+# zabbix-db service me:
+- POSTGRES_PASSWORD=YourNewSecurePassword
+
+# zabbix-server service me:
+- POSTGRES_PASSWORD=YourNewSecurePassword
+
+# zabbix-web service me:
+- POSTGRES_PASSWORD=YourNewSecurePassword
+```
+
+**Step 3:** Stack restart karein:
+```bash
+docker compose down && docker compose up -d
+```
+
+**Step 4:** Verify karein ki sab kaam kar raha hai:
+```bash
+# Database connection test
+PGPASSWORD=YourNewSecurePassword psql -h localhost -U zabbix -d zabbix -c "SELECT version();"
+
+# Zabbix Web UI browser me open karke check karein
 ```
 
 ---
