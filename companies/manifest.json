@@ -1,0 +1,24 @@
+{
+    "manifest_version": 2.0,
+    "id": "companies",
+    "name": "Companies Management",
+    "namespace": "Companies",
+    "version": "1.0",
+    "author": "Antigravity",
+    "description": "Multi-Tenant Company Management Module for Zabbix Admin",
+    "actions": {
+        "companies.list": {
+            "class": "CompaniesListAction",
+            "layout": "layout.htmlpage",
+            "view": "companies.list"
+        },
+        "companies.create": {
+            "class": "CompaniesCreateAction",
+            "layout": "layout.json"
+        },
+        "companies.delete": {
+            "class": "CompaniesDeleteAction",
+            "layout": "layout.json"
+        }
+    }
+}
