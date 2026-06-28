@@ -27,11 +27,11 @@ When monitoring remote networks or customer environments (like VMware systems in
 ### How Active Proxy Routing Works:
 ```mermaid
 graph TD
-    subgraph Server Network (Zabbix NOC)
+    subgraph "Server Network (Zabbix NOC)"
         ZServer[Zabbix Server VM<br>Tailscale IP: 100.124.123.38]
     end
 
-    subgraph Client Network (Remote Site)
+    subgraph "Client Network (Remote Site)"
         ZProxy[Zabbix Proxy VM<br>Tailscale IP: 100.71.60.63]
         Agent1[Windows Host Agent]
         Agent2[Linux Host Agent]
