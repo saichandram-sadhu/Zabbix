@@ -10,63 +10,7 @@ Developed and optimized for production environments. Designed for secure, zero-p
 Below is the live animation of how remote Zabbix Agents securely route data to your Central Zabbix NOC Server via the Zabbix Proxy and Tailscale Encrypted Mesh.
 
 <div align="center">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="100%" max-width="800px">
-    <defs>
-      <linearGradient id="grad-server" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#0275d8;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#025aa5;stop-opacity:1" />
-      </linearGradient>
-      <linearGradient id="grad-proxy" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
-      </linearGradient>
-      <linearGradient id="grad-client" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#64748b;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#334155;stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <style>
-      @keyframes pulse {
-        0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(2, 117, 216, 0.4)); }
-        50% { transform: scale(1.03); filter: drop-shadow(0 0 10px rgba(2, 117, 216, 0.7)); }
-        100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(2, 117, 216, 0.4)); }
-      }
-      @keyframes flow-active {
-        0% { stroke-dashoffset: 24; }
-        100% { stroke-dashoffset: 0; }
-      }
-      .node-server { fill: url(#grad-server); animation: pulse 3s infinite ease-in-out; transform-origin: 650px 140px; }
-      .node-proxy { fill: url(#grad-proxy); animation: pulse 2.5s infinite ease-in-out; transform-origin: 400px 140px; }
-      .node-client { fill: url(#grad-client); }
-      .flow-line { stroke: #38bdf8; stroke-width: 3; stroke-dasharray: 8, 4; animation: flow-active 1.5s linear infinite; }
-      .label-text { font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 13px; font-weight: bold; fill: #f8fafc; text-anchor: middle; }
-      .sub-text { font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
-    </style>
-    
-    <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
-    
-    <!-- Flow Lines -->
-    <path d="M 150 140 L 400 140" class="flow-line" />
-    <path d="M 400 140 L 650 140" class="flow-line" />
-    
-    <!-- Client/Agent Node -->
-    <circle cx="150" cy="140" r="50" class="node-client" stroke="#475569" stroke-width="2" />
-    <text x="150" y="130" class="label-text">Client VMs / Hosts</text>
-    <text x="150" y="150" class="sub-text">Zabbix Agents</text>
-    <text x="150" y="165" class="sub-text">IP: 192.168.87.10</text>
-    
-    <!-- Proxy Node (Tailscale Client) -->
-    <circle cx="400" cy="140" r="55" class="node-proxy" stroke="#047857" stroke-width="2" />
-    <text x="400" y="130" class="label-text">Zabbix Proxy</text>
-    <text x="400" y="150" class="sub-text">Docker Container</text>
-    <text x="400" y="165" class="sub-text">Tailscale: 100.71.60.63</text>
-    
-    <!-- NOC Zabbix Server Node -->
-    <circle cx="650" cy="140" r="60" class="node-server" stroke="#1d4ed8" stroke-width="2" />
-    <text x="650" y="130" class="label-text">Zabbix Server</text>
-    <text x="650" y="150" class="sub-text">NOC Central</text>
-    <text x="650" y="165" class="sub-text">Tailscale: 100.124.123.38</text>
-  </svg>
+  <img src="network_flow.svg" width="100%" max-width="800px" alt="Zabbix NOC Network Flow Animation" />
 </div>
 
 ---
