@@ -53,7 +53,7 @@ Imagine you manage **50+ servers, switches, and firewalls** across multiple clie
 
 ---
 
-## ⚡ 1-Click Quick Start
+## ⚡ 1-Click Quick Start (Linux)
 
 ### Prerequisites
 - [Docker Engine](https://docs.docker.com/engine/install/) installed
@@ -79,9 +79,9 @@ docker compose ps
 | Service | Access Method | Credentials |
 |---|---|---|
 | 🌐 **Zabbix Web UI** | Browser → `http://localhost` | Username: `Admin` / Password: `zabbix` |
-| 🗄️ **PostgreSQL** | ⚠️ Database Client only (NOT browser!) → `localhost:5432` | User: `zabbix` / Password: `StrongPassword@123` |
+| 🗄️ **PostgreSQL** | ⚠️ Database Client only (NOT a browser URL!) → `localhost:5432` | User: `zabbix` / Password: `StrongPassword@123` |
 
-> **⚠️ Important:** PostgreSQL ek database service hai, ise browser me open **nahi** kar sakte! Iske liye `psql` (terminal) ya **pgAdmin** (GUI tool) use karein. Neeche detail me bataya hai ⬇️
+> **⚠️ Important:** PostgreSQL is a database service — it **cannot** be opened in a web browser! Use `psql` (terminal) or **pgAdmin** (GUI tool) instead. See the [PostgreSQL Management Guide](#%EF%B8%8F-postgresql-database-management-complete-guide) below for details.
 
 ### Enable the Custom Companies Module
 1. Log in to Zabbix Web UI
@@ -92,115 +92,115 @@ docker compose ps
 
 ---
 
-## 🪟 Windows Server par Zabbix Install karna (Full Step-by-Step Guide)
+## 🪟 Installing Zabbix on Windows Server (Full Step-by-Step Guide)
 
-Agar aap Windows Server (2019/2022/2025) par Zabbix Server deploy karna chahte hain, toh neeche ka har ek step carefully follow karein. Ek bhi step miss mat karna!
+To deploy the Zabbix Server on Windows Server (2019/2022/2025), follow every step below carefully. Do not skip any step!
 
 <details>
-<summary><b>📌 Step 1: Windows Features Enable karein (Hyper-V & WSL2)</b></summary>
+<summary><b>📌 Step 1: Enable Windows Features (Hyper-V & WSL2)</b></summary>
 
-Docker Desktop ko Windows par chalane ke liye **WSL2 (Windows Subsystem for Linux 2)** ya **Hyper-V** backend chahiye.
+Docker Desktop requires **WSL2 (Windows Subsystem for Linux 2)** or the **Hyper-V** backend to run containers.
 
-**PowerShell ko Administrator mode me open karein** (Start → PowerShell → Right-click → Run as Administrator):
+**Open PowerShell as Administrator** (Start → search "PowerShell" → Right-click → Run as Administrator):
 
 ```powershell
-# WSL feature enable karein
+# Enable WSL feature
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 
-# Virtual Machine Platform enable karein
+# Enable Virtual Machine Platform
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
 
-**⚠️ Ab system ko RESTART karein!** (Ye zaroori hai, bina restart ke aage nahi badhein)
+**⚠️ RESTART your system now!** (This is mandatory — do not proceed without restarting)
 
-Restart hone ke baad, phir se PowerShell (Admin) open karein:
+After restart, open PowerShell (Admin) again:
 ```powershell
-# WSL2 ko default version set karein
+# Set WSL2 as the default version
 wsl --set-default-version 2
 
-# WSL2 Linux kernel update install karein
+# Update the WSL2 Linux kernel
 wsl --update
 ```
 
 </details>
 
 <details>
-<summary><b>📌 Step 2: Docker Desktop Install karein</b></summary>
+<summary><b>📌 Step 2: Install Docker Desktop</b></summary>
 
-1. Browser me ye link open karein:
+1. Open the following link in your browser:
    👉 [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
 
-2. **"Download for Windows"** button click karein
+2. Click the **"Download for Windows"** button
 
-3. Download hone ke baad `.exe` file double-click karein
+3. Once downloaded, double-click the `.exe` file to launch the installer
 
-4. Installation wizard me:
-   - ✅ **"Use WSL 2 instead of Hyper-V"** checkbox **ON** rakhein
-   - ✅ **"Add shortcut to desktop"** check karein
-   - **Ok** / **Install** click karein
+4. In the installation wizard:
+   - ✅ Keep **"Use WSL 2 instead of Hyper-V"** checkbox **enabled**
+   - ✅ Check **"Add shortcut to desktop"**
+   - Click **Ok** / **Install**
 
-5. Installation complete hone ke baad **"Close and restart"** click karein
+5. After installation completes, click **"Close and restart"**
 
-6. Restart ke baad Docker Desktop automatic start hoga. Taskbar (bottom-right) me 🐳 whale icon dikhega
+6. After restart, Docker Desktop will start automatically. You'll see the 🐳 whale icon in the taskbar (bottom-right)
 
-7. **Verify karein** — PowerShell open karke ye command run karein:
+7. **Verify the installation** — Open PowerShell and run:
    ```powershell
    docker --version
-   # Output: Docker version 27.x.x, build xxxxx ✅
+   # Expected output: Docker version 27.x.x, build xxxxx ✅
 
    docker compose version
-   # Output: Docker Compose version v2.x.x ✅
+   # Expected output: Docker Compose version v2.x.x ✅
    ```
 
-> **⚠️ Agar "Docker Desktop - WSL2 backend" error aaye:**
-> Settings → General → ✅ "Use the WSL 2 based engine" enable karein → Apply & Restart
+> **⚠️ If you see a "Docker Desktop - WSL2 backend" error:**
+> Open Docker Desktop → Settings → General → ✅ Enable "Use the WSL 2 based engine" → Apply & Restart
 
 </details>
 
 <details>
-<summary><b>📌 Step 3: Git for Windows Install karein</b></summary>
+<summary><b>📌 Step 3: Install Git for Windows</b></summary>
 
-1. Browser me ye link open karein:
+1. Open the following link in your browser:
    👉 [https://git-scm.com/download/win](https://git-scm.com/download/win)
 
-2. **"64-bit Git for Windows Setup"** click karein → Download hoga
+2. Click **"64-bit Git for Windows Setup"** to download
 
-3. `.exe` file double-click karke install karein:
-   - Saari settings **default** rakhein (Next → Next → Next → Install)
-   - **Important**: "Adjusting your PATH" screen par **"Git from the command line and also from 3rd-party software"** select rakhein
+3. Double-click the `.exe` file to install:
+   - Keep all settings at their **defaults** (Next → Next → Next → Install)
+   - **Important**: On the "Adjusting your PATH" screen, ensure **"Git from the command line and also from 3rd-party software"** is selected
 
-4. **Verify karein** — Naya PowerShell window open karein:
+4. **Verify** — Open a **new** PowerShell window:
    ```powershell
    git --version
-   # Output: git version 2.x.x.windows.x ✅
+   # Expected output: git version 2.x.x.windows.x ✅
    ```
 
 </details>
 
 <details>
-<summary><b>📌 Step 4: Zabbix Repository Clone karein aur Start karein</b></summary>
+<summary><b>📌 Step 4: Clone the Repository & Start Zabbix</b></summary>
 
-PowerShell open karein aur ye commands run karein:
+Open PowerShell and run the following commands:
 
 ```powershell
-# Desktop par ya kisi bhi jagah folder banayein
+# Navigate to your preferred directory
 cd C:\Users\Administrator\Desktop
 
-# Repository clone karein
+# Clone the repository
 git clone https://github.com/saichandram-sadhu/Zabbix.git
 
-# Folder me jaayein
+# Enter the project directory
 cd Zabbix
 
-# Docker Compose se pura stack start karein
+# Start the entire Zabbix stack using Docker Compose
 docker compose up -d
 ```
 
-**Pehli baar ye 3-5 minutes le sakta hai** kyunki Docker images (~500 MB) download hongi.
+**The first launch may take 3-5 minutes** as Docker downloads the required images (~500 MB).
 
-Progress check karein:
+Check the progress:
 ```powershell
-# Sab containers running hain ya nahi
+# Verify all containers are running
 docker compose ps
 
 # Expected output:
@@ -211,42 +211,42 @@ docker compose ps
 # zabbix-agent    running
 ```
 
-> **⚠️ Agar `zabbix-server` container restart loop me hai:**
-> Wait karein 1-2 minutes. Database initialization pehli baar me time leta hai.
-> Logs check karein: `docker compose logs zabbix-server`
+> **⚠️ If `zabbix-server` is in a restart loop:**
+> Wait 1-2 minutes — database initialization takes time on the first run.
+> Check logs: `docker compose logs zabbix-server`
 
 </details>
 
 <details>
-<summary><b>📌 Step 5: Zabbix Web UI Open karein</b></summary>
+<summary><b>📌 Step 5: Access the Zabbix Web UI</b></summary>
 
-1. Browser open karein (Chrome/Firefox/Edge)
+1. Open your browser (Chrome / Firefox / Edge)
 
-2. Address bar me type karein:
+2. Navigate to:
    ```
    http://localhost
    ```
 
-3. Zabbix Login Page aayega:
-   - **Username:** `Admin` (capital A se)
+3. The Zabbix Login Page will appear:
+   - **Username:** `Admin` (capital A)
    - **Password:** `zabbix`
 
-4. 🎉 **Congratulations! Aapka Zabbix Server Windows par chal raha hai!**
+4. 🎉 **Congratulations! Your Zabbix Server is running on Windows!**
 
-> **⚠️ Agar "This site can't be reached" error aaye:**
-> - Docker Desktop check karein ki running hai (taskbar me 🐳 icon green ho)
-> - Thoda wait karein (2 min) kyunki containers start hone me time lagta hai
-> - `docker compose ps` run karke status check karein
+> **⚠️ If you see "This site can't be reached":**
+> - Verify Docker Desktop is running (check for the 🐳 icon in the taskbar)
+> - Wait 2 minutes for the containers to fully initialize
+> - Run `docker compose ps` to check the container status
 
 </details>
 
 <details>
-<summary><b>📌 Step 6: Windows Firewall me Port Allow karein (Remote Access ke liye)</b></summary>
+<summary><b>📌 Step 6: Configure Windows Firewall (For Remote Access)</b></summary>
 
-Agar aap doosre computer se is Zabbix Server ko access karna chahte hain, toh Windows Firewall me ports allow karein:
+To access the Zabbix Server from other computers on your network, allow the required ports through Windows Firewall:
 
 ```powershell
-# PowerShell (Administrator) me run karein:
+# Run in PowerShell (Administrator):
 
 # Zabbix Web UI (HTTP)
 netsh advfirewall firewall add rule name="Zabbix Web HTTP" dir=in action=allow protocol=tcp localport=80
@@ -258,7 +258,7 @@ netsh advfirewall firewall add rule name="Zabbix Web HTTPS" dir=in action=allow 
 netsh advfirewall firewall add rule name="Zabbix Server Trapper" dir=in action=allow protocol=tcp localport=10051
 ```
 
-Ab aap kisi bhi doosre computer ke browser me Windows Server ka IP daalke Zabbix access kar sakte hain:
+You can now access Zabbix from any other computer on the network:
 ```
 http://<windows-server-ip>
 ```
@@ -266,25 +266,25 @@ http://<windows-server-ip>
 </details>
 
 <details>
-<summary><b>📌 Step 7: Windows Server Boot par Auto-Start Configure karein</b></summary>
+<summary><b>📌 Step 7: Configure Auto-Start on Boot</b></summary>
 
-Docker Desktop ko Windows startup me add karein taaki server restart hone par Zabbix automatic start ho:
+To ensure Zabbix starts automatically when Windows Server reboots:
 
-1. **Docker Desktop Settings** open karein (taskbar me 🐳 right-click → Settings)
-2. **General** tab me:
-   - ✅ **"Start Docker Desktop when you sign in to Windows"** — Enable karein
-3. **Apply & Restart** click karein
+1. Open **Docker Desktop Settings** (right-click the 🐳 icon in the taskbar → Settings)
+2. Under the **General** tab:
+   - ✅ Enable **"Start Docker Desktop when you sign in to Windows"**
+3. Click **Apply & Restart**
 
-Docker Desktop ke andar containers me humne already `restart: unless-stopped` set kiya hai, toh Docker start hote hi sab containers automatic chalu ho jaayenge!
+The `docker-compose.yml` already includes `restart: unless-stopped` for all containers, so they will start automatically once Docker Desktop launches.
 
-**Verify karein:**
+**Verify auto-start:**
 ```powershell
-# Server restart karein
+# Restart the server
 Restart-Computer
 
-# Restart ke baad PowerShell open karke check karein
+# After restart, open PowerShell and check
 docker compose ps
-# Sab containers "running" status me hone chahiye ✅
+# All containers should show "running" status ✅
 ```
 
 </details>
@@ -294,14 +294,14 @@ docker compose ps
 
 | Error | Solution |
 |---|---|
-| `docker: command not found` | Docker Desktop install nahi hai ya restart chahiye |
-| `WSL 2 installation is incomplete` | Step 1 follow karein — `wsl --update` run karein |
-| `port is already allocated` | IIS ya koi aur service port 80 par hai → IIS stop karein: `iisreset /stop` |
-| `zabbix-server keeps restarting` | Database init me time lagta hai — 2-3 min wait karein |
-| `Cannot connect to Docker daemon` | Docker Desktop start karein (taskbar me 🐳 icon check karein) |
-| `image not found / pull access denied` | Internet connection check karein |
-| `Hyper-V is not enabled` | Step 1 me dism commands run karein aur restart karein |
-| Web UI blank page | `docker compose logs zabbix-web` se logs check karein |
+| `docker: command not found` | Docker Desktop is not installed or requires a restart |
+| `WSL 2 installation is incomplete` | Follow Step 1 — run `wsl --update` |
+| `port is already allocated` | IIS or another service is using port 80 → Stop IIS: `iisreset /stop` |
+| `zabbix-server keeps restarting` | Database initialization takes time — wait 2-3 minutes |
+| `Cannot connect to Docker daemon` | Start Docker Desktop (check for 🐳 icon in taskbar) |
+| `image not found / pull access denied` | Check your internet connection |
+| `Hyper-V is not enabled` | Run the dism commands from Step 1 and restart |
+| Web UI shows blank page | Check logs: `docker compose logs zabbix-web` |
 
 </details>
 
@@ -325,10 +325,10 @@ docker compose ps
 | **Best For** | Remote offices, Home labs, Cloud | Data centers with static public IPs |
 
 ### Why We Use Active Mode
-In India (and many countries), home broadband ISPs like **GTPL, Jio, Airtel** use **CGNAT (Carrier-Grade NAT)**. This means:
+In many countries, home broadband ISPs (e.g., GTPL, Jio, Airtel) use **CGNAT (Carrier-Grade NAT)**. This means:
 - Your router does NOT get a real public IP address
-- Port forwarding simply doesn't work (even if configured correctly)
-- The solution is **Active Proxy + Tailscale VPN** = Zero port exposure, zero router config
+- Port forwarding simply doesn't work (even if configured correctly on the router)
+- The solution: **Active Proxy + Tailscale VPN** = Zero port exposure, zero router configuration needed
 
 ---
 
@@ -339,26 +339,26 @@ In India (and many countries), home broadband ISPs like **GTPL, Jio, Airtel** us
 Open `docker-compose.yml` and replace `StrongPassword@123` in **all three services**:
 
 ```yaml
-# Change in zabbix-db, zabbix-server, AND zabbix-web:
+# Update in zabbix-db, zabbix-server, AND zabbix-web:
 environment:
   - POSTGRES_PASSWORD=YourNewSecureDBPassword
 ```
 
-Apply changes:
+Apply the changes:
 ```bash
 docker compose down && docker compose up -d
 ```
 
 ### Step 2: Change Zabbix Admin Password
 1. Login to Zabbix Web UI → **`Users`** → **`Admin`**
-2. Click **`Change password`** → Set new password → Click **`Update`**
+2. Click **`Change password`** → Enter your new password → Click **`Update`**
 
 ### Step 3: Enable Multi-Factor Authentication (MFA)
 1. Go to **`Administration`** → **`Authentication`** → **`MFA Settings`**
 2. Add a TOTP provider (Google Authenticator / Authy)
 3. Enforce MFA on the `Zabbix administrators` group
 
-### Step 4: Firewall Configuration
+### Step 4: Firewall Configuration (Linux)
 ```bash
 # Allow only essential ports
 sudo ufw allow 22/tcp      # SSH
@@ -374,8 +374,8 @@ sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 ```
 
-### Step 6: Apache/Nginx Security Headers
-Add these headers to your web server config:
+### Step 6: Web Server Security Headers
+Add these headers to your Apache/Nginx configuration:
 ```
 Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 Header always set X-Content-Type-Options "nosniff"
@@ -389,72 +389,72 @@ ServerSignature Off
 
 ## 🗄️ PostgreSQL Database Management (Complete Guide)
 
-> **⚠️ PostgreSQL ek database service hai — ise browser me open NAHI kar sakte!**
-> Browser sirf HTTP web pages dikhata hai, lekin PostgreSQL apna khud ka binary protocol use karta hai (port 5432). Isko access karne ke liye dedicated database client tools chahiye.
+> **⚠️ PostgreSQL is a database service — it CANNOT be opened in a web browser!**
+> Browsers only render HTTP/HTTPS pages. PostgreSQL uses its own binary protocol on port 5432. You need dedicated database client tools to access it.
 
-### Method 1: Terminal se Access (psql — Command Line)
+### Method 1: Terminal Access (psql — Command Line)
 
-Agar aap sirf quick query run karna chahte hain:
+For quick queries, use the PostgreSQL CLI client:
 ```bash
-# Zabbix database me login karein
+# Connect to the Zabbix database
 PGPASSWORD=StrongPassword@123 psql -h localhost -U zabbix -d zabbix
 
-# Ab aap SQL queries run kar sakte hain, jaise:
+# Once connected, you can run SQL queries:
 # SELECT * FROM hosts LIMIT 5;
-# \dt   (sab tables dikhega)
+# \dt   (list all tables)
 # \q    (exit)
 ```
 
-### Method 2: pgAdmin 4 se Access (GUI — Recommended for Beginners)
+### Method 2: pgAdmin 4 (Web GUI — Recommended for Beginners)
 
-pgAdmin ek beautiful web-based GUI tool hai jo aapko database ko visually manage karne deta hai — tables dekhna, queries likhna, backups lena, sab kuch mouse se!
+pgAdmin is a web-based graphical tool for managing PostgreSQL databases — browse tables, write queries, take backups, all with a visual interface.
 
 <details>
-<summary><b>📌 Step 1: pgAdmin Install karein (Ubuntu/Debian)</b></summary>
+<summary><b>📌 Step 1: Install pgAdmin (Ubuntu/Debian)</b></summary>
 
 ```bash
-# pgAdmin repository add karein
+# Add the pgAdmin repository
 curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
 
 sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list'
 
 sudo apt update
 
-# Web mode install karein (browser me open hoga)
+# Install pgAdmin in web mode (accessible via browser)
 sudo apt install pgadmin4-web -y
 
-# Setup script chalayein (email aur password set karein)
+# Run the setup script (set your login email and password)
 sudo /usr/pgadmin4/bin/setup-web.sh
 ```
-Setup ke time ye puchega:
-- **Email**: Apna email daalein (e.g. `admin@zabbix.local`)
-- **Password**: Apna login password set karein
+During setup, you'll be prompted to provide:
+- **Email**: Enter your admin email (e.g., `admin@zabbix.local`)
+- **Password**: Set a login password for pgAdmin
 
 </details>
 
 <details>
-<summary><b>📌 Step 2: pgAdmin Open karein</b></summary>
+<summary><b>📌 Step 2: Open pgAdmin</b></summary>
 
-Browser me open karein:
+Open your browser and navigate to:
 ```
 http://localhost/pgadmin4
 ```
-Ya agar Zabbix Web port 80 par chal raha hai toh:
+If Zabbix Web is already running on port 80, use an alternate port:
 ```
 http://localhost:5050
 ```
 
-Login karein apne setup wale email aur password se.
+Log in with the email and password you set during the setup step.
 
 </details>
 
 <details>
-<summary><b>📌 Step 3: Zabbix Database se Connect karein</b></summary>
+<summary><b>📌 Step 3: Connect to the Zabbix Database</b></summary>
 
-1. pgAdmin me left panel me **`Servers`** par right-click karein → **`Register`** → **`Server`**
-2. **General** tab me:
+1. In pgAdmin, right-click **`Servers`** in the left panel → **`Register`** → **`Server`**
+2. Under the **General** tab:
    - **Name**: `Zabbix Database`
-3. **Connection** tab me ye values daalein:
+3. Under the **Connection** tab, enter the following values:
 
 | Field | Value |
 |---|---|
@@ -464,118 +464,118 @@ Login karein apne setup wale email aur password se.
 | Username | `zabbix` |
 | Password | `StrongPassword@123` |
 
-4. ✅ **Save password** checkbox enable karein
-5. **Save** click karein — Connected! 🎉
+4. ✅ Enable the **Save password** checkbox
+5. Click **Save** — Connected! 🎉
 
-Ab aap left panel me `Zabbix Database` → `Databases` → `zabbix` → `Schemas` → `public` → `Tables` expand karke saari tables dekh sakte hain!
+You can now expand `Zabbix Database` → `Databases` → `zabbix` → `Schemas` → `public` → `Tables` in the left panel to browse all Zabbix tables.
 
 </details>
 
-### Method 3: DBeaver se Access (Desktop GUI — Cross-Platform)
+### Method 3: DBeaver (Desktop GUI — Cross-Platform)
 
 <details>
 <summary><b>📌 DBeaver Install & Connect (Windows/Mac/Linux)</b></summary>
 
-#### Linux par Install karne ke 3 tarike:
+#### Installing on Linux (3 Options):
 
-**Option A: Snap se install (Sabse aasan — Ubuntu/Debian):**
+**Option A: Install via Snap (Easiest — Ubuntu/Debian):**
 ```bash
 sudo snap install dbeaver-ce
 ```
-Install hone ke baad terminal me `dbeaver-ce` type karke ya Application Menu se open karein.
+After installation, launch by typing `dbeaver-ce` in the terminal or from the Application Menu.
 
-**Option B: APT se install (Ubuntu/Debian — Official Repo):**
+**Option B: Install via APT (Ubuntu/Debian — Official Repository):**
 ```bash
-# DBeaver GPG key add karein
+# Add the DBeaver GPG key
 curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/dbeaver.gpg
 
-# Repository add karein
+# Add the repository
 echo "deb [signed-by=/usr/share/keyrings/dbeaver.gpg] https://dbeaver.io/debs/dbeaver-ce /" | sudo tee /etc/apt/sources.list.d/dbeaver.list
 
-# Install karein
+# Install DBeaver
 sudo apt update && sudo apt install dbeaver-ce -y
 ```
 
-**Option C: .deb file se direct install (Manual download):**
+**Option C: Install via .deb file (Manual Download):**
 ```bash
-# Latest .deb file download karein
+# Download the latest .deb package
 wget https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
 
-# Install karein
+# Install the package
 sudo dpkg -i dbeaver-ce_latest_amd64.deb
 
-# Agar dependency error aaye toh fix karein
+# Fix any dependency errors
 sudo apt install -f -y
 ```
 
-#### Windows par Install:
-1. [https://dbeaver.io/download/](https://dbeaver.io/download/) par jaayein
-2. **Windows (installer)** button click karein
-3. `.exe` file download hogi → Double-click karke Next → Next → Install karein
+#### Installing on Windows:
+1. Visit [https://dbeaver.io/download/](https://dbeaver.io/download/)
+2. Click the **Windows (installer)** download button
+3. Run the downloaded `.exe` file → Follow the wizard: Next → Next → Install
 
-#### Mac par Install:
+#### Installing on Mac:
 ```bash
 brew install --cask dbeaver-community
 ```
-Ya website se `.dmg` file download karke install karein.
+Alternatively, download the `.dmg` file from the [DBeaver website](https://dbeaver.io/download/) and install it manually.
 
 ---
 
-#### DBeaver me Zabbix Database se Connect karein:
-1. DBeaver open karein
-2. Top-left me **`New Database Connection`** (plug icon 🔌) click karein
-3. Search me **`PostgreSQL`** type karein → Select karein → **Next**
-4. Connection settings fill karein:
+#### Connecting DBeaver to the Zabbix Database:
+1. Open DBeaver
+2. Click the **`New Database Connection`** button (plug icon 🔌) in the top-left
+3. Search for **`PostgreSQL`** → Select it → Click **Next**
+4. Fill in the connection settings:
 
 | Field | Value |
 |---|---|
-| Host | `localhost` (ya server ka IP `192.168.1.178`) |
+| Host | `localhost` (or your server's IP, e.g., `192.168.1.178`) |
 | Port | `5432` |
 | Database | `zabbix` |
 | Username | `zabbix` |
 | Password | `StrongPassword@123` |
 
-5. **Test Connection** click karein
-   - Pehli baar me ye PostgreSQL JDBC driver download karne ko bolega → **Download** click karein
-   - Phir "Connected" message aayega ✅
-6. **Finish** click karein — Done! 🎉
+5. Click **Test Connection**
+   - On the first attempt, DBeaver will prompt you to download the PostgreSQL JDBC driver → Click **Download**
+   - After the driver installs, you should see a "Connected" success message ✅
+6. Click **Finish** — Done! 🎉
 
-Ab left panel me `zabbix` → `Schemas` → `public` → `Tables` expand karke saari Zabbix tables dekh sakte hain!
+You can now browse all Zabbix tables by expanding `zabbix` → `Schemas` → `public` → `Tables` in the left panel.
 
 </details>
 
-### Database Password Kaise Change Karein (Step-by-Step)
+### How to Change the Database Password (Step-by-Step)
 
-> **⚠️ WARNING:** Password change karte waqt Zabbix Server aur Web UI ka bhi password update karna zaroori hai, warna connection toot jayega!
+> **⚠️ WARNING:** When changing the database password, you must also update the Zabbix Server and Web UI configurations — otherwise, the database connection will break!
 
-**Step 1:** Pehle PostgreSQL me directly password change karein:
+**Step 1:** Change the password directly in PostgreSQL:
 ```bash
 PGPASSWORD=StrongPassword@123 psql -h localhost -U zabbix -d zabbix -c "ALTER USER zabbix WITH PASSWORD 'YourNewSecurePassword';"
 ```
 
-**Step 2:** `docker-compose.yml` file me **teeno jagah** purana password replace karein:
+**Step 2:** Update `docker-compose.yml` — replace the old password in **all three services**:
 ```yaml
-# zabbix-db service me:
+# In the zabbix-db service:
 - POSTGRES_PASSWORD=YourNewSecurePassword
 
-# zabbix-server service me:
+# In the zabbix-server service:
 - POSTGRES_PASSWORD=YourNewSecurePassword
 
-# zabbix-web service me:
+# In the zabbix-web service:
 - POSTGRES_PASSWORD=YourNewSecurePassword
 ```
 
-**Step 3:** Stack restart karein:
+**Step 3:** Restart the stack:
 ```bash
 docker compose down && docker compose up -d
 ```
 
-**Step 4:** Verify karein ki sab kaam kar raha hai:
+**Step 4:** Verify the connection:
 ```bash
-# Database connection test
+# Test database connectivity
 PGPASSWORD=YourNewSecurePassword psql -h localhost -U zabbix -d zabbix -c "SELECT version();"
 
-# Zabbix Web UI browser me open karke check karein
+# Also verify the Zabbix Web UI loads correctly in your browser
 ```
 
 ---
@@ -613,42 +613,42 @@ graph LR
 ### Setup Steps
 
 <details>
-<summary><b>📌 Step 1: Install Tailscale on Zabbix Server VM</b></summary>
+<summary><b>📌 Step 1: Install Tailscale on the Zabbix Server VM</b></summary>
 
 ```bash
-# Download and install
+# Download and install Tailscale
 curl -fsSL https://tailscale.com/install.sh | sh
 
-# Start and authenticate (opens a browser link)
+# Start the service and authenticate (a browser link will be generated)
 sudo tailscale up --accept-dns=false
 
-# Note your virtual IP
+# Note your assigned virtual IP
 tailscale ip -4
 # Example output: 100.124.123.38
 ```
 </details>
 
 <details>
-<summary><b>📌 Step 2: Install Tailscale on Client's Proxy VM</b></summary>
+<summary><b>📌 Step 2: Install Tailscale on the Client's Proxy VM</b></summary>
 
 ```bash
-# Download and install
+# Download and install Tailscale
 curl -fsSL https://tailscale.com/install.sh | sh
 
-# Start and authenticate (use SAME Tailscale account as server)
+# Start and authenticate (use the SAME Tailscale account as the server)
 sudo tailscale up --accept-dns=false
 
-# Note your virtual IP
+# Note your assigned virtual IP
 tailscale ip -4
 # Example output: 100.71.60.63
 ```
 </details>
 
 <details>
-<summary><b>📌 Step 3: Test Connectivity</b></summary>
+<summary><b>📌 Step 3: Test the Connection</b></summary>
 
 ```bash
-# From Proxy VM, ping the Server's Tailscale IP
+# From the Proxy VM, ping the Server's Tailscale IP
 ping 100.124.123.38
 
 # Expected: Replies received = Connection established ✅
@@ -656,7 +656,7 @@ ping 100.124.123.38
 </details>
 
 <details>
-<summary><b>📌 Step 4: Launch Zabbix Proxy Container</b></summary>
+<summary><b>📌 Step 4: Launch the Zabbix Proxy Container</b></summary>
 
 ```bash
 docker run --name zabbix-proxy -d \
@@ -677,11 +677,11 @@ Edit `zabbix_agentd.conf` on each monitored machine:
 Server=192.168.87.20
 ServerActive=192.168.87.20
 
-# Must match the host name configured in Zabbix Frontend
+# Must match the host name configured in the Zabbix Frontend
 Hostname=Windows_Server_ClientBeta
 ```
 
-Restart the agent:
+Restart the agent service:
 ```bash
 # Linux
 sudo systemctl restart zabbix-agent
@@ -692,16 +692,16 @@ net stop "Zabbix Agent" && net start "Zabbix Agent"
 </details>
 
 <details>
-<summary><b>📌 Step 6: Register Proxy in Zabbix Server</b></summary>
+<summary><b>📌 Step 6: Register the Proxy in the Zabbix Server</b></summary>
 
-1. Login to Zabbix Web UI
+1. Login to the Zabbix Web UI
 2. Go to **`Administration`** → **`Proxies`**
 3. Click **`Create proxy`**
-4. Set:
+4. Configure:
    - **Proxy name:** `Proxy_Clientbeta` (must match `ZBX_HOSTNAME` exactly)
    - **Proxy mode:** `Active`
 5. Click **`Add`**
-6. Wait 1-2 minutes — Status will turn **🟢 Green (Online)** ✅
+6. Wait 1-2 minutes — the status will turn **🟢 Green (Online)** ✅
 </details>
 
 ---
@@ -742,6 +742,7 @@ Zabbix/
 ├── 🐳 docker-compose.yml           # 1-click deployment stack
 ├── 📊 network_flow.svg             # Network architecture diagram
 ├── 📊 proxy_modes.svg              # Proxy modes comparison diagram
+├── 📊 data_flow.svg                # Data flow pipeline diagram
 ├── 📝 create_dashboard.py          # Python script for dashboard automation
 ├── 📝 manage_tenants.py            # Python script for tenant management
 ├── 📁 companies/                   # Custom MSP module (auto-mounted)
@@ -770,33 +771,33 @@ Zabbix/
 ## ❓ Frequently Asked Questions
 
 <details>
-<summary><b>Q: Kya Tailscale hamesha free rahega?</b></summary>
+<summary><b>Q: Is Tailscale free forever?</b></summary>
 
-**Haan!** Tailscale ka Personal plan hamesha ke liye free hai. Aapko **100 devices** aur **3 users** milte hain bina koi paisa diye. Virtual IPs permanent hain aur kabhi change nahi hoti.
+**Yes!** Tailscale's Personal plan is free forever. You get **100 devices** and **3 users** at no cost. The virtual IPs are permanent and never change.
 </details>
 
 <details>
-<summary><b>Q: Server restart hone par Tailscale automatic start hoga?</b></summary>
+<summary><b>Q: Does Tailscale auto-start after a server reboot?</b></summary>
 
-**Haan!** Tailscale install hote hi systemd service me register ho jata hai (`tailscaled.service`). Server boot hone par automatic reconnect ho jayega. Verify karein: `systemctl is-enabled tailscaled` → `enabled`
+**Yes!** Upon installation, Tailscale registers itself as a systemd service (`tailscaled.service`). It will automatically reconnect after every boot. Verify with: `systemctl is-enabled tailscaled` → `enabled`
 </details>
 
 <details>
-<summary><b>Q: Internet disconnect hone par data loss hoga kya?</b></summary>
+<summary><b>Q: Will data be lost if the internet disconnects?</b></summary>
 
-**Nahi!** Active Proxy apne local SQLite database me saara data buffer karta hai. Jaise hi internet reconnect hota hai, buffered data automatically server ko push ho jata hai. **Zero data loss.**
+**No!** The Active Proxy buffers all collected data in its local SQLite database. Once internet connectivity is restored, the buffered data is automatically pushed to the server. **Zero data loss.**
 </details>
 
 <details>
-<summary><b>Q: Ek Zabbix Server se kitne Proxies connect ho sakte hain?</b></summary>
+<summary><b>Q: How many Proxies can connect to a single Zabbix Server?</b></summary>
 
-**Unlimited.** Zabbix Server par koi hard limit nahi hai proxies ki. Aap 100+ client sites ko easily ek server se monitor kar sakte hain. Bas server ke RAM aur CPU capacity ke hisaab se scale karein.
+**Unlimited.** There is no hard limit on the number of proxies a Zabbix Server can handle. You can easily monitor 100+ client sites from a single server — just scale your RAM and CPU accordingly.
 </details>
 
 <details>
-<summary><b>Q: Kya mera personal data GitHub par gaya hai?</b></summary>
+<summary><b>Q: Is my personal data uploaded to GitHub?</b></summary>
 
-**Nahi!** Database data (`zabbix-db-storage` Docker volume) git me included nahi hai. Sirf configuration files, module code, aur documentation push hui hai. Koi bhi user clone karega toh use fresh Zabbix environment milega.
+**No!** Database data (stored in the `zabbix-db-storage` Docker volume) is not included in the Git repository. Only configuration files, module code, and documentation are pushed. Anyone who clones this repository will get a fresh, empty Zabbix environment.
 </details>
 
 ---
