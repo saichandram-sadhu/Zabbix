@@ -1,57 +1,187 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" width="900">
   <defs>
-    <linearGradient id="grad-server" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0275d8;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#025aa5;stop-opacity:1" />
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
     </linearGradient>
-    <linearGradient id="grad-proxy" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    <linearGradient id="g-server" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
     </linearGradient>
-    <linearGradient id="grad-client" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#64748b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#334155;stop-opacity:1" />
+    <linearGradient id="g-proxy" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
     </linearGradient>
+    <linearGradient id="g-agent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="g-tunnel" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="50%" style="stop-color:#38bdf8"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="g-db" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <linearGradient id="g-web" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#db2777"/>
+    </linearGradient>
+    <filter id="glow-blue">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-green">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
   </defs>
-  <style>
-    @keyframes pulse {
-      0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(2,117,216,0.4)); }
-      50% { transform: scale(1.03); filter: drop-shadow(0 0 10px rgba(2,117,216,0.7)); }
-      100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(2,117,216,0.4)); }
-    }
-    @keyframes flow-active {
-      0% { stroke-dashoffset: 24; }
-      100% { stroke-dashoffset: 0; }
-    }
-    .node-server { fill: url(#grad-server); animation: pulse 3s infinite ease-in-out; transform-origin: 650px 140px; }
-    .node-proxy { fill: url(#grad-proxy); animation: pulse 2.5s infinite ease-in-out; transform-origin: 400px 140px; }
-    .node-client { fill: url(#grad-client); }
-    .flow-line { stroke: #38bdf8; stroke-width: 3; stroke-dasharray: 8, 4; animation: flow-active 1.5s linear infinite; }
-    .label-text { font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 13px; font-weight: bold; fill: #f8fafc; text-anchor: middle; }
-    .sub-text { font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
-  </style>
+
+  <!-- Background -->
+  <rect width="900" height="520" fill="url(#bg)" rx="16"/>
   
-  <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
-  
-  <!-- Flow Lines -->
-  <path d="M 150 140 L 400 140" class="flow-line" />
-  <path d="M 400 140 L 650 140" class="flow-line" />
-  
-  <!-- Client/Agent Node -->
-  <circle cx="150" cy="140" r="50" class="node-client" stroke="#475569" stroke-width="2" />
-  <text x="150" y="130" class="label-text">Client VMs / Hosts</text>
-  <text x="150" y="150" class="sub-text">Zabbix Agents</text>
-  <text x="150" y="165" class="sub-text">IP: 192.168.87.10</text>
-  
-  <!-- Proxy Node (Tailscale Client) -->
-  <circle cx="400" cy="140" r="55" class="node-proxy" stroke="#047857" stroke-width="2" />
-  <text x="400" y="130" class="label-text">Zabbix Proxy</text>
-  <text x="400" y="150" class="sub-text">Docker Container</text>
-  <text x="400" y="165" class="sub-text">Tailscale: 100.71.60.63</text>
-  
-  <!-- NOC Zabbix Server Node -->
-  <circle cx="650" cy="140" r="60" class="node-server" stroke="#1d4ed8" stroke-width="2" />
-  <text x="650" y="130" class="label-text">Zabbix Server</text>
-  <text x="650" y="150" class="sub-text">NOC Central</text>
-  <text x="650" y="165" class="sub-text">Tailscale: 100.124.123.38</text>
+  <!-- Grid pattern -->
+  <g opacity="0.04">
+    <line x1="0" y1="50" x2="900" y2="50" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="100" x2="900" y2="100" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="150" x2="900" y2="150" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="200" x2="900" y2="200" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="250" x2="900" y2="250" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="300" x2="900" y2="300" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="350" x2="900" y2="350" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="400" x2="900" y2="400" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="450" x2="900" y2="450" stroke="#fff" stroke-width="1"/>
+    <line x1="100" y1="0" x2="100" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="300" y1="0" x2="300" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="400" y1="0" x2="400" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="500" y1="0" x2="500" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="600" y1="0" x2="600" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="700" y1="0" x2="700" y2="520" stroke="#fff" stroke-width="1"/>
+    <line x1="800" y1="0" x2="800" y2="520" stroke="#fff" stroke-width="1"/>
+  </g>
+
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="18" font-weight="700" fill="#e2e8f0" letter-spacing="1">ZABBIX NOC — MULTI-TENANT NETWORK ARCHITECTURE</text>
+  <line x1="180" y1="48" x2="720" y2="48" stroke="#334155" stroke-width="1"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ZONE 1: NOC SERVER (Right Side) -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="590" y="70" width="290" height="420" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="590" y="70" width="290" height="36" rx="12" fill="#334155"/>
+  <rect x="590" y="94" width="290" height="12" fill="#334155"/>
+  <text x="735" y="93" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">🏢  NOC CENTRAL SERVER</text>
+
+  <!-- Zabbix Server Box -->
+  <rect x="620" y="125" width="230" height="72" rx="10" fill="url(#g-server)" filter="url(#glow-blue)"/>
+  <text x="668" y="152" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#dbeafe">🖥️</text>
+  <text x="690" y="153" font-family="Segoe UI, system-ui, sans-serif" font-size="14" font-weight="700" fill="#fff">Zabbix Server 7.0</text>
+  <text x="690" y="172" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#bfdbfe">Port 10051 (Active Proxy Listener)</text>
+  <text x="690" y="188" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#93c5fd">Tailscale IP: 100.124.123.38</text>
+
+  <!-- PostgreSQL DB Box -->
+  <rect x="620" y="212" width="108" height="60" rx="8" fill="url(#g-db)" filter="url(#shadow)"/>
+  <text x="650" y="237" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🗄️</text>
+  <text x="668" y="238" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">PostgreSQL</text>
+  <text x="674" y="255" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#fef3c7">Port 5432</text>
+
+  <!-- Web UI Box -->
+  <rect x="742" y="212" width="108" height="60" rx="8" fill="url(#g-web)" filter="url(#shadow)"/>
+  <text x="772" y="237" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🌐</text>
+  <text x="790" y="238" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">Web UI</text>
+  <text x="796" y="255" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#fce7f3">Nginx + PHP</text>
+
+  <!-- Tailscale Service on Server -->
+  <rect x="620" y="290" width="230" height="50" rx="8" fill="#0e7490" filter="url(#shadow)"/>
+  <text x="660" y="313" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🔐</text>
+  <text x="680" y="314" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">Tailscale VPN (WireGuard)</text>
+  <text x="680" y="331" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#a5f3fc">Auto-start on boot | Zero Config</text>
+
+  <!-- Server IP Info -->
+  <rect x="620" y="355" width="230" height="45" rx="8" fill="#1e3a5f" stroke="#2563eb" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="640" y="375" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#93c5fd">📍 Local IP: 192.168.1.178</text>
+  <text x="640" y="392" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#93c5fd">📍 Virtual IP: 100.124.123.38</text>
+
+  <!-- Firewall -->
+  <rect x="620" y="413" width="230" height="36" rx="8" fill="#991b1b" opacity="0.8"/>
+  <text x="660" y="435" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🛡️</text>
+  <text x="678" y="436" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#fecaca">UFW Firewall (22, 443, 10051)</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ZONE 2: SECURE TUNNEL (Middle) -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="386" y="138" width="190" height="38" rx="6" fill="#164e63" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="481" y="161" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#67e8f9">🔒 Encrypted WireGuard Tunnel</text>
+
+  <!-- Tunnel animated arrows -->
+  <line x1="400" y1="157" x2="416" y2="157" stroke="#22d3ee" stroke-width="2.5"/>
+  <polygon points="420,157 414,153 414,161" fill="#22d3ee"/>
+  <line x1="546" y1="157" x2="562" y2="157" stroke="#22d3ee" stroke-width="2.5"/>
+  <polygon points="574,157 568,153 568,161" fill="#22d3ee"/>
+
+  <!-- Connection lines from tunnel to both sides -->
+  <line x1="576" y1="157" x2="620" y2="160" stroke="#06b6d4" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="386" y1="157" x2="330" y2="160" stroke="#06b6d4" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ZONE 3: CLIENT SITE (Left Side) -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="20" y="70" width="310" height="420" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="20" y="70" width="310" height="36" rx="12" fill="#334155"/>
+  <rect x="20" y="94" width="310" height="12" fill="#334155"/>
+  <text x="175" y="93" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">🏠  REMOTE CLIENT SITE</text>
+
+  <!-- Zabbix Proxy Docker Box -->
+  <rect x="50" y="125" width="250" height="72" rx="10" fill="url(#g-proxy)" filter="url(#glow-green)"/>
+  <text x="88" y="152" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#dcfce7">🐳</text>
+  <text x="108" y="153" font-family="Segoe UI, system-ui, sans-serif" font-size="14" font-weight="700" fill="#fff">Zabbix Proxy (Docker)</text>
+  <text x="108" y="172" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#bbf7d0">Active Mode → Pushes to Server</text>
+  <text x="108" y="188" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#86efac">Tailscale IP: 100.71.60.63</text>
+
+  <!-- Tailscale Service on Client -->
+  <rect x="50" y="212" width="250" height="42" rx="8" fill="#0e7490" filter="url(#shadow)"/>
+  <text x="90" y="237" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🔐</text>
+  <text x="108" y="238" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">Tailscale VPN (WireGuard)</text>
+
+  <!-- Agent 1: Windows Server -->
+  <rect x="50" y="275" width="250" height="52" rx="8" fill="url(#g-agent)" filter="url(#shadow)"/>
+  <text x="80" y="298" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">💻</text>
+  <text x="98" y="299" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">Windows Server (Agent)</text>
+  <text x="98" y="316" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#e9d5ff">IP: 192.168.87.10 → Port 10050</text>
+
+  <!-- Arrow from Agent1 to Proxy -->
+  <line x1="175" y1="275" x2="175" y2="200" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <polygon points="175,197 171,205 179,205" fill="#a855f7"/>
+
+  <!-- Agent 2: Linux Server -->
+  <rect x="50" y="340" width="250" height="52" rx="8" fill="url(#g-agent)" filter="url(#shadow)"/>
+  <text x="80" y="363" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🐧</text>
+  <text x="98" y="364" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">Linux Server (Agent)</text>
+  <text x="98" y="381" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#e9d5ff">IP: 192.168.87.20 → Port 10050</text>
+
+  <!-- Arrow from Agent2 to Proxy -->
+  <line x1="225" y1="340" x2="225" y2="200" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <polygon points="225,197 221,205 229,205" fill="#a855f7"/>
+
+  <!-- Agent 3: FortiGate SNMP -->
+  <rect x="50" y="405" width="250" height="52" rx="8" fill="#ea580c" filter="url(#shadow)"/>
+  <text x="80" y="428" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#fff">🔥</text>
+  <text x="98" y="429" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fff">FortiGate Firewall (SNMP)</text>
+  <text x="98" y="446" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#fed7aa">IP: 192.168.1.222 → SNMP v2</text>
+
+  <!-- Arrow from Agent3 to Proxy -->
+  <line x1="125" y1="405" x2="125" y2="200" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <polygon points="125,197 121,205 129,205" fill="#ea580c"/>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- LEGEND -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <text x="450" y="490" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#64748b">Designed by Saichandram Sadhu | Zabbix 7.0 LTS | Tailscale Mesh VPN | WireGuard Encryption</text>
+  <text x="450" y="508" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="9" fill="#475569">Zero Port Exposure • CGNAT Bypass • Enterprise Grade Security</text>
 </svg>
