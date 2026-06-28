@@ -706,6 +706,36 @@ net stop "Zabbix Agent" && net start "Zabbix Agent"
 
 ---
 
+## 🛠️ NOC Hardening & Alert Customizations by Saichandram Sadhu
+
+This production environment has been highly customized and hardened by **Saichandram Sadhu** to establish a state-of-the-art NOC Monitoring standard. The customizations focus on security, clear alert visibility, and eliminating false positives:
+
+### 1. 🚨 High-Priority Offline & Availability Alerts
+Standard Zabbix triggers have been renamed and escalated to **High Severity (Red)** to capture immediate attention in the NOC:
+- **Zabbix Agent Disconnect**: Triggers are renamed to `🚨 Zabbix Agent Offline: Host {HOST.NAME} is disconnected or Zabbix service is stopped!`
+- **Network Ping Failure**: Triggers are renamed to `🚨 Network Ping Failure: Host {HOST.NAME} is completely unreachable!`
+- **Link Down Alerts**: Triggers are renamed to `🚨 CRITICAL Link Down! Interface {#IFNAME} on {HOST.NAME} is down!`
+
+### 2. 🗄️ Advanced Filesystem (Disk Space) Alerts
+Trigger prototypes on the template level have been redesigned to make storage warnings clear and intuitive across all discovered drives (C:, D:, E:, etc.):
+- **Warning Threshold**: Redesigned to `⚠️ Drive [{#FSNAME}] is filling up (Space Low)` (Severity: Average, triggered above 85% utilization).
+- **Critical Threshold**: Redesigned to `🚨 Drive [{#FSNAME}] is almost FULL (Space Critically Low)` (Severity: High, triggered above 95% utilization).
+- **False Positive Elimination**: Configured Zabbix macros globally so alerts only trigger if both the percentage threshold is breached AND the absolute free space falls below a minimum threshold (`5GB` for Warning, `2GB` for Critical).
+
+### 🔌 3. Interface Alert Hardening (Zero False-Positives)
+To eliminate standard Zabbix noise where every dynamic interface status change (like a user shutting down their computer) triggers a warning:
+- The global macro `{$IFCONTROL}` is set to `0`. This disables link-down triggers for all discovered interfaces on all hosts by default.
+- Host-level overrides (`{$IFCONTROL:"<interface-name>"} = 1`) are configured on critical ports (e.g., `port1`/`port2` on Firewalls/Switches, and `Ethernet0` on Windows Servers). Link-down alerts will **only** trigger on these specified critical links.
+
+### 🛡️ 4. Server Security Hardening Summary
+- **UFW Firewall**: Blocked all ports except HTTP/S (80/443), Trapper (10051), and SSH (22).
+- **Brute Force Protection**: Implemented `fail2ban` for automated blocking of SSH brute-force attackers.
+- **Credential Protection**: Hardened all PostgreSQL database passwords and default Admin credentials.
+- **Guest Access Disabled**: Guest user access to the frontend is completely blocked (`gui_access = 2`).
+- **Secure Sessions**: Configured HTTPS redirect and enforced `Secure` & `HttpOnly` flags on PHP session cookies.
+
+---
+
 ## 🏢 Custom Companies Management Module
 
 This repository includes a custom PHP module (`companies/`) that adds **MSP (Managed Service Provider) multi-tenant management** capabilities to Zabbix:
