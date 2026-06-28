@@ -92,6 +92,221 @@ docker compose ps
 
 ---
 
+## 🪟 Windows Server par Zabbix Install karna (Full Step-by-Step Guide)
+
+Agar aap Windows Server (2019/2022/2025) par Zabbix Server deploy karna chahte hain, toh neeche ka har ek step carefully follow karein. Ek bhi step miss mat karna!
+
+<details>
+<summary><b>📌 Step 1: Windows Features Enable karein (Hyper-V & WSL2)</b></summary>
+
+Docker Desktop ko Windows par chalane ke liye **WSL2 (Windows Subsystem for Linux 2)** ya **Hyper-V** backend chahiye.
+
+**PowerShell ko Administrator mode me open karein** (Start → PowerShell → Right-click → Run as Administrator):
+
+```powershell
+# WSL feature enable karein
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+
+# Virtual Machine Platform enable karein
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+**⚠️ Ab system ko RESTART karein!** (Ye zaroori hai, bina restart ke aage nahi badhein)
+
+Restart hone ke baad, phir se PowerShell (Admin) open karein:
+```powershell
+# WSL2 ko default version set karein
+wsl --set-default-version 2
+
+# WSL2 Linux kernel update install karein
+wsl --update
+```
+
+</details>
+
+<details>
+<summary><b>📌 Step 2: Docker Desktop Install karein</b></summary>
+
+1. Browser me ye link open karein:
+   👉 [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
+
+2. **"Download for Windows"** button click karein
+
+3. Download hone ke baad `.exe` file double-click karein
+
+4. Installation wizard me:
+   - ✅ **"Use WSL 2 instead of Hyper-V"** checkbox **ON** rakhein
+   - ✅ **"Add shortcut to desktop"** check karein
+   - **Ok** / **Install** click karein
+
+5. Installation complete hone ke baad **"Close and restart"** click karein
+
+6. Restart ke baad Docker Desktop automatic start hoga. Taskbar (bottom-right) me 🐳 whale icon dikhega
+
+7. **Verify karein** — PowerShell open karke ye command run karein:
+   ```powershell
+   docker --version
+   # Output: Docker version 27.x.x, build xxxxx ✅
+
+   docker compose version
+   # Output: Docker Compose version v2.x.x ✅
+   ```
+
+> **⚠️ Agar "Docker Desktop - WSL2 backend" error aaye:**
+> Settings → General → ✅ "Use the WSL 2 based engine" enable karein → Apply & Restart
+
+</details>
+
+<details>
+<summary><b>📌 Step 3: Git for Windows Install karein</b></summary>
+
+1. Browser me ye link open karein:
+   👉 [https://git-scm.com/download/win](https://git-scm.com/download/win)
+
+2. **"64-bit Git for Windows Setup"** click karein → Download hoga
+
+3. `.exe` file double-click karke install karein:
+   - Saari settings **default** rakhein (Next → Next → Next → Install)
+   - **Important**: "Adjusting your PATH" screen par **"Git from the command line and also from 3rd-party software"** select rakhein
+
+4. **Verify karein** — Naya PowerShell window open karein:
+   ```powershell
+   git --version
+   # Output: git version 2.x.x.windows.x ✅
+   ```
+
+</details>
+
+<details>
+<summary><b>📌 Step 4: Zabbix Repository Clone karein aur Start karein</b></summary>
+
+PowerShell open karein aur ye commands run karein:
+
+```powershell
+# Desktop par ya kisi bhi jagah folder banayein
+cd C:\Users\Administrator\Desktop
+
+# Repository clone karein
+git clone https://github.com/saichandram-sadhu/Zabbix.git
+
+# Folder me jaayein
+cd Zabbix
+
+# Docker Compose se pura stack start karein
+docker compose up -d
+```
+
+**Pehli baar ye 3-5 minutes le sakta hai** kyunki Docker images (~500 MB) download hongi.
+
+Progress check karein:
+```powershell
+# Sab containers running hain ya nahi
+docker compose ps
+
+# Expected output:
+# NAME            STATUS
+# zabbix-db       running (healthy)
+# zabbix-server   running
+# zabbix-web      running
+# zabbix-agent    running
+```
+
+> **⚠️ Agar `zabbix-server` container restart loop me hai:**
+> Wait karein 1-2 minutes. Database initialization pehli baar me time leta hai.
+> Logs check karein: `docker compose logs zabbix-server`
+
+</details>
+
+<details>
+<summary><b>📌 Step 5: Zabbix Web UI Open karein</b></summary>
+
+1. Browser open karein (Chrome/Firefox/Edge)
+
+2. Address bar me type karein:
+   ```
+   http://localhost
+   ```
+
+3. Zabbix Login Page aayega:
+   - **Username:** `Admin` (capital A se)
+   - **Password:** `zabbix`
+
+4. 🎉 **Congratulations! Aapka Zabbix Server Windows par chal raha hai!**
+
+> **⚠️ Agar "This site can't be reached" error aaye:**
+> - Docker Desktop check karein ki running hai (taskbar me 🐳 icon green ho)
+> - Thoda wait karein (2 min) kyunki containers start hone me time lagta hai
+> - `docker compose ps` run karke status check karein
+
+</details>
+
+<details>
+<summary><b>📌 Step 6: Windows Firewall me Port Allow karein (Remote Access ke liye)</b></summary>
+
+Agar aap doosre computer se is Zabbix Server ko access karna chahte hain, toh Windows Firewall me ports allow karein:
+
+```powershell
+# PowerShell (Administrator) me run karein:
+
+# Zabbix Web UI (HTTP)
+netsh advfirewall firewall add rule name="Zabbix Web HTTP" dir=in action=allow protocol=tcp localport=80
+
+# Zabbix Web UI (HTTPS)
+netsh advfirewall firewall add rule name="Zabbix Web HTTPS" dir=in action=allow protocol=tcp localport=443
+
+# Zabbix Server (Proxy connections)
+netsh advfirewall firewall add rule name="Zabbix Server Trapper" dir=in action=allow protocol=tcp localport=10051
+```
+
+Ab aap kisi bhi doosre computer ke browser me Windows Server ka IP daalke Zabbix access kar sakte hain:
+```
+http://<windows-server-ip>
+```
+
+</details>
+
+<details>
+<summary><b>📌 Step 7: Windows Server Boot par Auto-Start Configure karein</b></summary>
+
+Docker Desktop ko Windows startup me add karein taaki server restart hone par Zabbix automatic start ho:
+
+1. **Docker Desktop Settings** open karein (taskbar me 🐳 right-click → Settings)
+2. **General** tab me:
+   - ✅ **"Start Docker Desktop when you sign in to Windows"** — Enable karein
+3. **Apply & Restart** click karein
+
+Docker Desktop ke andar containers me humne already `restart: unless-stopped` set kiya hai, toh Docker start hote hi sab containers automatic chalu ho jaayenge!
+
+**Verify karein:**
+```powershell
+# Server restart karein
+Restart-Computer
+
+# Restart ke baad PowerShell open karke check karein
+docker compose ps
+# Sab containers "running" status me hone chahiye ✅
+```
+
+</details>
+
+<details>
+<summary><b>🔧 Troubleshooting: Common Windows Errors & Solutions</b></summary>
+
+| Error | Solution |
+|---|---|
+| `docker: command not found` | Docker Desktop install nahi hai ya restart chahiye |
+| `WSL 2 installation is incomplete` | Step 1 follow karein — `wsl --update` run karein |
+| `port is already allocated` | IIS ya koi aur service port 80 par hai → IIS stop karein: `iisreset /stop` |
+| `zabbix-server keeps restarting` | Database init me time lagta hai — 2-3 min wait karein |
+| `Cannot connect to Docker daemon` | Docker Desktop start karein (taskbar me 🐳 icon check karein) |
+| `image not found / pull access denied` | Internet connection check karein |
+| `Hyper-V is not enabled` | Step 1 me dism commands run karein aur restart karein |
+| Web UI blank page | `docker compose logs zabbix-web` se logs check karein |
+
+</details>
+
+---
+
 ## 🔄 Zabbix Proxy — Active vs Passive Modes
 
 <div align="center">
