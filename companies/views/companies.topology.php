@@ -279,12 +279,12 @@ foreach ($hosts as $h) {
         </div>
 
         <!-- The Canvas -->
-        <div id="topology-canvas" style="width: 100%; height: 100%;"></div>
+        <div id="topology-canvas" style="width: 100%; height: 600px; min-height: 550px;"></div>
     </div>
 </div>
 
-<!-- Load Vis-Network script from CDN -->
-<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<!-- Load Vis-Network script locally -->
+<script type="text/javascript" src="modules/companies/assets/vis-network.min.js"></script>
 
 <style>
 /* CSS Styling */
@@ -415,6 +415,12 @@ const options = {
 
 // Initialize network
 let network = new vis.Network(container, data, options);
+
+// Force fit and redraw to prevent size computation bugs
+setTimeout(() => {
+    network.redraw();
+    network.fit();
+}, 300);
 
 // Zoom Actions
 function zoomMap(scaleFactor) {
