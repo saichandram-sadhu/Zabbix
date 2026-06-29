@@ -267,56 +267,91 @@ $total_proxies = count($proxies);
     margin-bottom: 10px;
 }
 
-/* Search */
+/* Search — force override Zabbix global input styles */
 .noc-search {
-    width: 100%;
-    padding: 10px 14px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    color: #f1f5f9;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
+    width: 100% !important;
+    padding: 10px 14px !important;
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+    color: #f1f5f9 !important;
+    font-size: 13px !important;
+    outline: none !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    height: auto !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
 }
-.noc-search:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
-.noc-search::placeholder { color: #475569; }
+.noc-search:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2) !important;
+    background: #1e293b !important;
+}
+.noc-search::placeholder { color: #64748b !important; }
 
 /* Legend */
 .legend-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 0;
-    font-size: 13px;
-    color: #cbd5e1;
+    padding: 5px 0;
+    font-size: 12.5px;
+    color: #94a3b8;
 }
 .legend-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
 }
 
-/* Buttons */
+/* ── Buttons — full reset to beat Zabbix global styles ── */
 .noc-btn {
-    width: 100%;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid #334155;
-    background: #1e293b;
-    color: #e2e8f0;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    margin-top: 6px;
+    all: unset !important;
+    display: block !important;
+    width: 100% !important;
+    padding: 11px 16px !important;
+    border-radius: 8px !important;
+    border: 1px solid #334155 !important;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    color: #cbd5e1 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    font-family: system-ui, -apple-system, sans-serif !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-align: center !important;
+    margin-top: 8px !important;
+    box-sizing: border-box !important;
+    letter-spacing: 0.2px !important;
+    line-height: 1.3 !important;
+    -webkit-appearance: none !important;
+    user-select: none !important;
 }
-.noc-btn:hover { background: #334155; border-color: #6366f1; color: #fff; }
-.noc-btn:active { transform: scale(0.97); }
-.noc-btn.active { background: #22c55e; border-color: #16a34a; color: #fff; }
+.noc-btn:first-child { margin-top: 0 !important; }
+.noc-btn:hover {
+    background: linear-gradient(180deg, #334155 0%, #1e293b 100%) !important;
+    border-color: #6366f1 !important;
+    color: #f8fafc !important;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.15) !important;
+}
+.noc-btn:active {
+    transform: scale(0.97) !important;
+    background: #334155 !important;
+}
+.noc-btn.frozen {
+    background: linear-gradient(180deg, #065f46 0%, #064e3b 100%) !important;
+    border-color: #10b981 !important;
+    color: #ecfdf5 !important;
+}
+.noc-btn.frozen:hover {
+    background: linear-gradient(180deg, #047857 0%, #065f46 100%) !important;
+    border-color: #34d399 !important;
+}
 
 /* ── Canvas Container ── */
 .noc-canvas-wrap {
@@ -332,7 +367,7 @@ $total_proxies = count($proxies);
     height: 100%;
 }
 
-/* Zoom buttons */
+/* ── Zoom buttons — full reset ── */
 .noc-zoom {
     position: absolute;
     top: 14px;
@@ -342,33 +377,43 @@ $total_proxies = count($proxies);
     gap: 6px;
     z-index: 10;
 }
-.noc-zoom button {
-    width: 38px;
-    height: 38px;
-    background: rgba(15,23,42,0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid #334155;
-    border-radius: 10px;
-    color: #e2e8f0;
-    font-size: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    line-height: 1;
+.noc-zoom-btn {
+    all: unset !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(15,23,42,0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid #334155 !important;
+    border-radius: 10px !important;
+    color: #94a3b8 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    font-family: system-ui, -apple-system, sans-serif !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none !important;
+    user-select: none !important;
 }
-.noc-zoom button:hover { background: #334155; color: #60a5fa; border-color: #60a5fa; }
-.noc-zoom button:active { transform: scale(0.9); }
+.noc-zoom-btn:hover {
+    background: #1e293b !important;
+    color: #60a5fa !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 2px 8px rgba(96,165,250,0.15) !important;
+}
+.noc-zoom-btn:active { transform: scale(0.9) !important; }
 
 /* Node info panel (bottom-left overlay) */
 .node-info-panel {
     position: absolute;
     bottom: 14px;
     left: 14px;
-    background: rgba(15,23,42,0.92);
-    backdrop-filter: blur(12px);
+    background: rgba(15,23,42,0.94);
+    backdrop-filter: blur(16px);
     border: 1px solid #334155;
     border-radius: 10px;
     padding: 14px 18px;
@@ -378,6 +423,7 @@ $total_proxies = count($proxies);
     z-index: 10;
     display: none;
     line-height: 1.6;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 .node-info-panel.visible { display: block; animation: fadeSlideUp 0.3s ease; }
 .node-info-panel .info-title { font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
@@ -458,18 +504,18 @@ div.vis-network div.vis-tooltip {
 
             <div class="sidebar-section">
                 <div class="sidebar-title">Controls</div>
-                <button id="btn-freeze" class="noc-btn" onclick="togglePhysics()">⏸ Freeze Layout</button>
-                <button class="noc-btn" onclick="fitMap()">⛶ Fit to Screen</button>
-                <button class="noc-btn" onclick="resetSearch()">✕ Clear Search</button>
+                <div id="btn-freeze" class="noc-btn" onclick="togglePhysics()">Freeze Layout</div>
+                <div class="noc-btn" onclick="fitMap()">Fit to Screen</div>
+                <div class="noc-btn" onclick="resetSearch()">Clear Search</div>
             </div>
         </div>
 
         <!-- Canvas -->
         <div class="noc-canvas-wrap">
             <div class="noc-zoom">
-                <button onclick="zoomIn()" title="Zoom In">+</button>
-                <button onclick="zoomOut()" title="Zoom Out">−</button>
-                <button onclick="fitMap()" title="Fit">⛶</button>
+                <div class="noc-zoom-btn" onclick="zoomIn()" title="Zoom In">+</div>
+                <div class="noc-zoom-btn" onclick="zoomOut()" title="Zoom Out">&minus;</div>
+                <div class="noc-zoom-btn" onclick="fitMap()" title="Fit to Screen">&#x26F6;</div>
             </div>
             <div id="topology-canvas"></div>
 
@@ -618,8 +664,8 @@ div.vis-network div.vis-tooltip {
         physicsOn = !physicsOn;
         network.setOptions({ physics: { enabled: physicsOn } });
         var btn = document.getElementById('btn-freeze');
-        btn.textContent = physicsOn ? '▶ Unfreeze Layout' : '⏸ Freeze Layout';
-        btn.className = physicsOn ? 'noc-btn active' : 'noc-btn';
+        btn.textContent = physicsOn ? 'Unfreeze Layout' : 'Freeze Layout';
+        btn.className = physicsOn ? 'noc-btn frozen' : 'noc-btn';
     };
 
     window.fitMap = function() {
