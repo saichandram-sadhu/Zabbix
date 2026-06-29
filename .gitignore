@@ -1,0 +1,12 @@
+# Ignore Headscale state database and dynamic folders
+headscale/data/
+
+# Ignore auto-generated private security keys (DO NOT UPLOAD TO GITHUB)
+headscale/config/private.key
+headscale/config/noise_private.key
+headscale/config/derp_server_private.key
+headscale/config/noise_private_key
+headscale/config/private_key
+headscale/config/*.key
+headscale/config/*.sqlite
+headscale/config/*.db

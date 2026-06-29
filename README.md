@@ -875,30 +875,93 @@ Zabbix/
 
 ---
 
-## 🛜 Headscale Self-Hosted Mesh VPN (NOC VPN)
+## 🛜 Headscale Self-Hosted Mesh VPN (NOC VPN) Setup Guide
 
-A complete **Headscale** server and **Headscale UI** dashboard are running on this host inside Docker Compose to manage secure, peer-to-peer tunnels for your Zabbix Server and remote Zabbix Proxies:
+This repository contains a pre-configured **Headscale** server and **Headplane UI** stack inside the `headscale/` directory. When you clone this repository, you can spin up your own private Zero-Trust VPN mesh network alongside Zabbix.
 
-*   **Headscale Control URL**: `http://192.168.1.178:8080`
-*   **Web Console (Headscale UI)**: `http://192.168.1.178:8081/admin`
-*   **Default User Namespace**: `noc-network`
-*   **Pre-generated API Key** (for Headscale UI setup): `hskey-api-1FGAtblhhO9k-lRz2zsGTunZbLy5SmGDtkArCvjro3eD8iIOZjNx4-qymZTVN7i8bUfY9VgUfIRB2`
+### 📋 Prerequisites
+- **Docker** and **Docker Compose** installed.
+- Open incoming port `8080` (Headscale API) and `8081` (Headplane UI) on the server host's firewall if accessing from outside.
 
-### Useful CLI Commands
+---
 
-To manage Headscale, run the following commands on the Zabbix server host:
+### 🚀 Step-by-Step Deployment
 
-*   **View Connected Nodes**:
+#### Step 1: Clone the Repository & Start the Stack
+Navigate to the `headscale` folder inside the cloned repository and launch the container services:
+```bash
+cd headscale
+docker compose up -d
+```
+This will launch:
+1. **Headscale Server** on port `8080` (backend)
+2. **Headplane Web UI** on port `8081` (frontend under `/admin`)
+
+---
+
+#### Step 2: Create a Namespace (User)
+Headscale requires devices to be grouped under namespaces (users). Run this command on the server host to create a default namespace named `noc-network`:
+```bash
+docker exec headscale headscale users create noc-network
+```
+
+---
+
+#### Step 3: Generate an API Key for Web UI
+To log in to the Headplane Web UI panel, you must generate a Headscale API key:
+```bash
+docker exec headscale headscale apikeys create
+```
+Copy the generated key (it starts with `hskey-api-...`).
+
+---
+
+#### Step 4: Access and Configure the Web UI
+1. Open **`http://<SERVER_IP>:8081/admin`** in your browser.
+2. In the setup wizard:
+   - **Headscale URL**: Set to `http://<SERVER_IP>:8080` (your server's backend port).
+   - **API Key**: Paste the API key generated in **Step 3**.
+3. Click **Save API Key**. You will be redirected to the Headplane admin panel.
+
+---
+
+#### Step 5: Connect Client Nodes (Zabbix Proxy / Targets)
+To connect a remote Zabbix Proxy or client node to this VPN network:
+
+1. **Install Tailscale** on the remote client machine:
+   ```bash
+   curl -fsSL https://tailscale.com/install.sh | sh
+   ```
+2. **Launch Connection** pointing to your Headscale server:
+   ```bash
+   sudo tailscale up --login-server http://<SERVER_IP>:8080
+   ```
+3. Copy the URL/key (starting with `mkey:...`) printed on the screen.
+4. **Register the Node**:
+   - Go to your Headplane UI on **`http://<SERVER_IP>:8081/admin/machines`**, click **Add Device**, paste the key, and assign it to the `noc-network` user.
+   - *Alternative (CLI)*: Run this on the server host:
+     ```bash
+     docker exec headscale headscale nodes register --user noc-network --key mkey:<KEY_FROM_CLIENT>
+     ```
+
+Once approved, the remote machine is assigned a permanent IP (e.g., `100.64.0.1`). You can now communicate securely without static IPs or port forwarding.
+
+---
+
+### 🛠️ Useful Management CLI Commands
+Run these commands on the server host to manage the VPN stack:
+
+*   **View Registered Nodes & IP addresses**:
     ```bash
     docker exec headscale headscale nodes list
     ```
-*   **Register a New Client Node**:
-    ```bash
-    docker exec headscale headscale nodes register --user noc-network --key <NODE_KEY>
-    ```
-*   **Generate an Auth Key** (for automatic/passwordless proxy registration):
+*   **Generate an Auto-Enrollment Key** (for automatic/passwordless script-based enrollment of Zabbix Proxies):
     ```bash
     docker exec headscale headscale preauthkeys create --user noc-network --reusable --expiration 90d
+    ```
+*   **Delete/Remove a Node**:
+    ```bash
+    docker exec headscale headscale nodes delete -i <NODE_ID>
     ```
 
 ---

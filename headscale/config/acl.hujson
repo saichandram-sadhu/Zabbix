@@ -1,0 +1,10 @@
+{
+  // ACL policies permit all traffic by default for Zabbix server/proxy nodes
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["*"],
+      "dst": ["*:*"]
+    }
+  ]
+}
