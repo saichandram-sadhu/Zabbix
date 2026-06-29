@@ -926,41 +926,45 @@ Copy the generated key (it starts with `hskey-api-...`).
 ---
 
 #### Step 5: Connect Client Nodes (Zabbix Proxy / Targets)
-To connect a remote Zabbix Proxy or client node to this VPN network:
+To connect a remote Zabbix Proxy or client node to this VPN network, choose one of the following methods:
+
+##### Method A: Using a Pre-authorized Key (Recommended — 100% Automatic)
+This method connects the proxy instantly without copying registration links or manual UI approvals:
 
 1. **Install Tailscale** on the remote client machine:
    ```bash
    curl -fsSL https://tailscale.com/install.sh | sh
    ```
-2. **Launch Connection** pointing to your Headscale server:
+2. **Connect Instantly** using the pre-generated reusable auth-key:
+   ```bash
+   sudo tailscale up --login-server http://<SERVER_IP>:8080 --auth-key hskey-auth-D2CyTPUzgT3e-FFUaYQlkMtnFZnRf4gf07PUxC6lZGjMkIZS4sq-V__Znrf6QgdyMeUND-H8AcT35 --accept-dns=false
+   ```
+   *(The device will register automatically under `noc-network` and receive its virtual IP immediately.)*
+
+##### Method B: Manual Approval via Web UI
+1. **Install Tailscale** on the remote client machine:
+   ```bash
+   curl -fsSL https://tailscale.com/install.sh | sh
+   ```
+2. **Launch Connection**:
    ```bash
    sudo tailscale up --login-server http://<SERVER_IP>:8080
    ```
 3. Copy the URL/key (starting with `mkey:...`) printed on the screen.
-4. **Register the Node**:
-   - Go to your Headplane UI on **`http://<SERVER_IP>:8081/admin/machines`**, click **Add Device**, paste the key, and assign it to the `noc-network` user.
-   - *Alternative (CLI)*: Run this on the server host:
-     ```bash
-     docker exec headscale headscale nodes register --user noc-network --key mkey:<KEY_FROM_CLIENT>
-     ```
+4. **Register the Node**: Go to your Headplane UI on **`http://<SERVER_IP>:8081/admin/machines`**, click **Add Device**, select the `noc-network` user, paste the `mkey:...` string, and save.
 
 ---
 
 #### Step 6: Connect Zabbix Server Host itself
-To allow the Zabbix Server host to talk to the remote Zabbix Proxies, it must also be joined to the same Headscale network:
+To allow the Zabbix Server host to talk to the remote Zabbix Proxies, it must also join the Headscale network:
 
 1. If the server is logged in to a different network, logout first:
    ```bash
    sudo tailscale logout
    ```
-2. Force join to the new Headscale network:
+2. Join using the pre-authorized key to connect automatically:
    ```bash
-   sudo tailscale up --login-server http://192.168.1.178:8080 --accept-dns=false --force-reauth
-   ```
-3. Copy the authentication URL from the output (e.g., `http://192.168.1.178:8080/register/hskey-authreq-xxx`).
-4. Register the Server node on the Headscale host using the printed key:
-   ```bash
-   docker exec headscale headscale auth register --auth-id hskey-authreq-<AUTH_ID> --user noc-network
+   sudo tailscale up --login-server http://192.168.1.178:8080 --auth-key hskey-auth-D2CyTPUzgT3e-FFUaYQlkMtnFZnRf4gf07PUxC6lZGjMkIZS4sq-V__Znrf6QgdyMeUND-H8AcT35 --accept-dns=false --force-reauth
    ```
 
 Once both are registered, verify the connection from the Zabbix Server host using ping:
