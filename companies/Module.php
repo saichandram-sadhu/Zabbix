@@ -15,11 +15,11 @@ class Module extends CModule {
                 ->setAction('companies.list')
                 ->setIcon('zi-users'));
 
-            // NOC Topology nested under Services menu (no separate icon needed)
+            // NOC Topology nested under Services menu (uses existing Services icon)
             APP::Component()->get('menu.main')
                 ->findOrAdd(_('Services'))
                     ->getSubMenu()
-                        ->insertAfter(_('Services'),
+                        ->add(
                             (new CMenuItem(_('NOC Topology')))
                                 ->setAction('companies.topology')
                         );
