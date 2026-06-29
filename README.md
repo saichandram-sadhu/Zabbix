@@ -769,6 +769,11 @@ Zabbix's interface discovery templates use the check `{$IFCONTROL:"{#IFNAME}"}=1
 - **Guest Access Disabled**: Guest user access to the frontend is completely blocked (`gui_access = 2`).
 - **Secure Sessions**: Configured HTTPS redirect and enforced `Secure` & `HttpOnly` flags on PHP session cookies.
 
+### 🗺️ 5. NOC Dashboard & Geographical Maps (Fixed & Upgraded)
+To fix and upgrade the global overview interface for NOC operators:
+- **Geomap Coordinates Fixed**: Set explicit latitude and longitude coordinates for all hosts globally via API, plotting them accurately on the India-wide Geomap (Delhi, Ahmedabad, Surat, Mumbai).
+- **Secondary Dashboard Tab**: Created a new **"Network Topology Map"** page on the Global View dashboard, embedding the live local network connectivity map showing real-time host status.
+
 ---
 
 ## 🏢 Custom Companies Management Module
