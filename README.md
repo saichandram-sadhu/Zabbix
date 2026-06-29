@@ -788,14 +788,16 @@ This repository includes a custom PHP module (`companies/`) that adds **MSP (Man
 | 👤 **User Badges** | Click any user badge to open their Zabbix profile |
 | ⚡ **Live Alerts Panel** | Real-time problems panel linked to trigger event details |
 | 🎨 **Modern CSS** | Hover transitions, gradient cards, responsive grid layout |
+| 🌐 **Interactive NOC Topology** | Dynamic auto-generated tree graph (using Vis.js) mapping Zabbix Server, Active Proxies, and Monitored Hosts with real IP discovery and live alert state color glows. Features pan, click, drag, search, and zoom controls |
 
 ### Module Files
 ```
 companies/
-├── Module.php                          # Module registration & menu entry
+├── Module.php                          # Module registration & menu entries
 ├── manifest.json                       # Module metadata & version
 ├── actions/
 │   ├── CompaniesListAction.php         # Main controller (data fetching)
+│   ├── CompaniesTopologyAction.php     # Network topology data mapper
 │   ├── CompaniesCreateAction.php       # Company creation handler
 │   └── CompaniesDeleteAction.php       # Company deletion handler
 └── views/
