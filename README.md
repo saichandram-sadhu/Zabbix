@@ -944,7 +944,29 @@ To connect a remote Zabbix Proxy or client node to this VPN network:
      docker exec headscale headscale nodes register --user noc-network --key mkey:<KEY_FROM_CLIENT>
      ```
 
-Once approved, the remote machine is assigned a permanent IP (e.g., `100.64.0.1`). You can now communicate securely without static IPs or port forwarding.
+---
+
+#### Step 6: Connect Zabbix Server Host itself
+To allow the Zabbix Server host to talk to the remote Zabbix Proxies, it must also be joined to the same Headscale network:
+
+1. If the server is logged in to a different network, logout first:
+   ```bash
+   sudo tailscale logout
+   ```
+2. Force join to the new Headscale network:
+   ```bash
+   sudo tailscale up --login-server http://192.168.1.178:8080 --accept-dns=false --force-reauth
+   ```
+3. Copy the authentication URL from the output (e.g., `http://192.168.1.178:8080/register/hskey-authreq-xxx`).
+4. Register the Server node on the Headscale host using the printed key:
+   ```bash
+   docker exec headscale headscale auth register --auth-id hskey-authreq-<AUTH_ID> --user noc-network
+   ```
+
+Once both are registered, verify the connection from the Zabbix Server host using ping:
+```bash
+ping -c 3 100.64.0.1
+```
 
 ---
 
