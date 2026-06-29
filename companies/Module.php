@@ -14,6 +14,11 @@ class Module extends CModule {
                 ->add((new CMenuItem(_('Companies')))
                 ->setAction('companies.list')
                 ->setIcon('zi-users'));
+
+            APP::Component()->get('menu.main')
+                ->add((new CMenuItem(_('NOC Topology')))
+                ->setAction('companies.topology')
+                ->setIcon('zi-map'));
         }
     }
 }

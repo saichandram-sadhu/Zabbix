@@ -12,6 +12,11 @@
             "layout": "layout.htmlpage",
             "view": "companies.list"
         },
+        "companies.topology": {
+            "class": "CompaniesTopologyAction",
+            "layout": "layout.htmlpage",
+            "view": "companies.topology"
+        },
         "companies.create": {
             "class": "CompaniesCreateAction",
             "layout": "layout.json"
