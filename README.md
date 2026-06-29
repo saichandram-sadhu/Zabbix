@@ -875,6 +875,34 @@ Zabbix/
 
 ---
 
+## 🛜 Headscale Self-Hosted Mesh VPN (NOC VPN)
+
+A complete **Headscale** server and **Headscale UI** dashboard are running on this host inside Docker Compose to manage secure, peer-to-peer tunnels for your Zabbix Server and remote Zabbix Proxies:
+
+*   **Headscale Control URL**: `http://192.168.1.178:8080`
+*   **Web Console (Headscale UI)**: `http://192.168.1.178:8081`
+*   **Default User Namespace**: `noc-network`
+*   **Pre-generated API Key** (for Headscale UI setup): `YbyZjr510Q.3oYLo9aIzjwrehJXJAiI0u1L3E-kDLECUbtyuIg8zj8`
+
+### Useful CLI Commands
+
+To manage Headscale, run the following commands on the Zabbix server host:
+
+*   **View Connected Nodes**:
+    ```bash
+    docker exec headscale headscale nodes list
+    ```
+*   **Register a New Client Node**:
+    ```bash
+    docker exec headscale headscale nodes register --user noc-network --key <NODE_KEY>
+    ```
+*   **Generate an Auth Key** (for automatic/passwordless proxy registration):
+    ```bash
+    docker exec headscale headscale preauthkeys create --user noc-network --reusable --expiration 90d
+    ```
+
+---
+
 <div align="center">
 
 ### ⭐ Star this repository if it helped you!
