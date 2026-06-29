@@ -882,7 +882,7 @@ A complete **Headscale** server and **Headscale UI** dashboard are running on th
 *   **Headscale Control URL**: `http://192.168.1.178:8080`
 *   **Web Console (Headscale UI)**: `http://192.168.1.178:8081/admin`
 *   **Default User Namespace**: `noc-network`
-*   **Pre-generated API Key** (for Headscale UI setup): `YbyZjr510Q.3oYLo9aIzjwrehJXJAiI0u1L3E-kDLECUbtyuIg8zj8`
+*   **Pre-generated API Key** (for Headscale UI setup): `hskey-api-1FGAtblhhO9k-lRz2zsGTunZbLy5SmGDtkArCvjro3eD8iIOZjNx4-qymZTVN7i8bUfY9VgUfIRB2`
 
 ### Useful CLI Commands
 
