@@ -15,10 +15,14 @@ class Module extends CModule {
                 ->setAction('companies.list')
                 ->setIcon('zi-users'));
 
+            // NOC Topology nested under Services menu
             APP::Component()->get('menu.main')
-                ->add((new CMenuItem(_('NOC Topology')))
-                ->setAction('companies.topology')
-                ->setIcon('zi-services'));
+                ->findOrAdd(_('Services'))
+                    ->getSubmenu()
+                        ->insertAfter(_('Services'),
+                            (new CMenuItem(_('NOC Topology')))
+                                ->setAction('companies.topology')
+                        );
         }
     }
 }
