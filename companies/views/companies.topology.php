@@ -14,16 +14,23 @@ $host_problems = $data['host_problems'];
 $nodes = [];
 $edges = [];
 
-// 1. Zabbix Server Node
+// 1. Zabbix Server Node (Root)
 $nodes[] = [
     'id' => 'server_root',
     'label' => "🧠 " . $server_name . "\nIP: 127.0.0.1",
     'title' => "<b>Zabbix NOC Central Engine</b><br>Status: Running<br>IP: 127.0.0.1",
-    'group' => 'server',
-    'value' => 25,
-    'shape' => 'image',
-    'image' => 'assets/img/icon-server.svg', // will fall back to Vis.js built-ins if missing
-    'font' => ['color' => '#ffffff', 'size' => 14, 'bold' => true]
+    'shape' => 'box',
+    'margin' => 15,
+    'color' => [
+        'background' => '#1e3a8a', // Deep Blue
+        'border' => '#3b82f6',
+        'highlight' => [
+            'background' => '#2563eb',
+            'border' => '#60a5fa'
+        ]
+    ],
+    'borderWidth' => 3,
+    'font' => ['color' => '#ffffff', 'size' => 15, 'bold' => true, 'face' => 'Inter, system-ui, sans-serif']
 ];
 
 // Map of active proxies
@@ -39,11 +46,19 @@ foreach ($proxies as $p) {
         'id' => $proxy_node_id,
         'label' => "🔁 " . $pname . "\n(Active Proxy)",
         'title' => "<b>Zabbix Active Proxy</b><br>Name: " . htmlspecialchars($pname) . "<br>ID: " . $pid,
-        'group' => 'proxy',
-        'value' => 18,
-        'shape' => 'image',
-        'image' => 'assets/img/icon-router.svg',
-        'font' => ['color' => '#e2e8f0', 'size' => 12]
+        'shape' => 'box',
+        'margin' => 12,
+        'color' => [
+            'background' => '#334155', // Slate Grey
+            'border' => '#64748b',
+            'highlight' => [
+                'background' => '#475569',
+                'border' => '#94a3b8'
+            ]
+        ],
+        'borderWidth' => 2,
+        'borderWidthSelected' => 3,
+        'font' => ['color' => '#f1f5f9', 'size' => 13, 'bold' => true, 'face' => 'Inter, system-ui, sans-serif']
     ];
 
     // Link Proxy to Server
@@ -65,7 +80,7 @@ foreach ($hosts as $h) {
     $proxy_id = $h['proxyid'];
     $description = $h['description'];
 
-    // Skip templates (templates are not active hosts in Zabbix)
+    // Skip templates
     if ($hstatus == 3) {
         continue;
     }
@@ -82,21 +97,20 @@ foreach ($hosts as $h) {
     }
 
     // Resolve host alert severity and tooltip HTML
-    $color = '#22c55e'; // Green (OK)
-    $border_color = '#16a34a';
+    $bg_color = '#0f172a'; // Dark Slate
+    $border_color = '#10b981'; // Emerald Green (OK)
+    $text_color = '#f8fafc';
     $problems_html = "<b>Status:</b> Healthy ✅";
-    $has_issues = false;
     $max_severity = -1;
 
     if (isset($host_problems[$hid])) {
-        $has_issues = true;
         $problems_html = "<b>Active Problems:</b><br>";
         foreach ($host_problems[$hid] as $p) {
             $severity_label = 'Warning';
-            $p_color = '#eab308';
+            $p_color = '#f59e0b';
             if ($p['severity'] >= 4) {
                 $severity_label = 'Critical';
-                $p_color = '#ef4444';
+                $p_color = '#f43f5e';
             }
             if ($p['severity'] > $max_severity) {
                 $max_severity = $p['severity'];
@@ -106,11 +120,11 @@ foreach ($hosts as $h) {
 
         // Color node based on max severity
         if ($max_severity >= 4) {
-            $color = '#ef4444'; // Red (High/Disaster)
-            $border_color = '#b91c1c';
+            $border_color = '#f43f5e'; // Rose Red (Critical)
+            $bg_color = '#4c0519'; // Deep Rose bg
         } else {
-            $color = '#f59e0b'; // Orange/Yellow (Average/Warning)
-            $border_color = '#d97706';
+            $border_color = '#f59e0b'; // Amber Orange (Warning)
+            $bg_color = '#451a03'; // Deep Amber bg
         }
     }
 
@@ -121,8 +135,7 @@ foreach ($hosts as $h) {
                $problems_html;
 
     // Detect icon shape dynamically based on templates or names
-    $icon_shape = 'dot';
-    $custom_image = '';
+    $label_prefix = "🖥️ ";
     $name_lower = strtolower($hname);
     
     // Check template types
@@ -144,57 +157,32 @@ foreach ($hosts as $h) {
     }
 
     if ($is_firewall || strpos($name_lower, 'firewall') !== false || strpos($name_lower, 'fortigate') !== false) {
-        $icon_shape = 'image';
-        $custom_image = 'firewall';
         $label_prefix = "🔥 ";
     } elseif ($is_server || strpos($name_lower, 'server') !== false || strpos($name_lower, 'win-') !== false || strpos($name_lower, 'dc-') !== false) {
-        $icon_shape = 'image';
-        $custom_image = 'server';
         $label_prefix = "💻 ";
     } elseif ($is_switch || strpos($name_lower, 'switch') !== false || strpos($name_lower, 'mikrotik') !== false || strpos($name_lower, 'router') !== false) {
-        $icon_shape = 'image';
-        $custom_image = 'router';
         $label_prefix = "🔌 ";
-    } else {
-        $icon_shape = 'dot';
-        $label_prefix = "🖥️ ";
     }
 
     // Add Host Node
-    $node = [
+    $nodes[] = [
         'id' => 'host_' . $hid,
         'label' => $label_prefix . $hname . "\nIP: " . $ip,
         'title' => $tooltip,
-        'value' => 12,
-        'font' => ['color' => '#ffffff', 'size' => 11]
-    ];
-
-    if ($icon_shape == 'image') {
-        $node['shape'] = 'image';
-        // Base64 or standard icons matching alert severity border
-        $node['image'] = $custom_image; // processed below
-    } else {
-        $node['shape'] = 'dot';
-        $node['color'] = [
-            'background' => $color,
+        'shape' => 'box',
+        'margin' => 10,
+        'color' => [
+            'background' => $bg_color,
             'border' => $border_color,
             'highlight' => [
-                'background' => '#3b82f6',
-                'border' => '#2563eb'
+                'background' => '#1e293b',
+                'border' => '#3b82f6'
             ]
-        ];
-    }
-
-    // Custom coloring for image nodes (we pass the state dynamically to VisJS)
-    $node['borderWidth'] = $has_issues ? 3 : 1;
-    $node['color'] = [
-        'border' => $border_color,
-        'background' => '#1e293b'
+        ],
+        'borderWidth' => 2,
+        'borderWidthSelected' => 3,
+        'font' => ['color' => $text_color, 'size' => 12, 'face' => 'Inter, system-ui, sans-serif']
     ];
-    $node['status'] = $has_issues ? ($max_severity >= 4 ? 'critical' : 'warning') : 'ok';
-    $node['device_type'] = $custom_image ?: 'generic';
-
-    $nodes[] = $node;
 
     // Link Host to parent Proxy or Server Root
     $parent_id = 'server_root';
@@ -205,19 +193,19 @@ foreach ($hosts as $h) {
     $edges[] = [
         'from' => $parent_id,
         'to' => 'host_' . $hid,
-        'color' => $has_issues ? ($max_severity >= 4 ? '#ef4444' : '#f59e0b') : '#22c55e',
-        'width' => $has_issues ? 3 : 1.5,
+        'color' => $max_severity >= 0 ? ($max_severity >= 4 ? '#f43f5e' : '#f59e0b') : '#10b981',
+        'width' => $max_severity >= 0 ? 3 : 1.5,
         'length' => 140
     ];
 }
 ?>
 
-<div class="header-title">
+<div class="header-title" style="padding: 10px 0;">
     <h1 style="font-size: 24px; font-weight: 700; color: #f8fafc; margin-bottom: 5px;">🌐 Dynamic NOC Network Topology</h1>
     <div style="color: #94a3b8; font-size: 14px;">Real-time auto-generated network mapping with zero manual configuration. Zoom, pan, and click devices to view details.</div>
 </div>
 
-<div class="topology-container" style="display: flex; gap: 15px; margin-top: 15px; height: calc(100vh - 160px); min-height: 550px;">
+<div class="topology-container" style="display: flex; gap: 15px; margin-top: 10px; height: calc(100vh - 160px); min-height: 550px;">
     
     <!-- Controls & Info Box -->
     <div class="control-panel" style="width: 320px; background: #1e293b; border-radius: 8px; border: 1px solid #334155; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
@@ -235,15 +223,15 @@ foreach ($hosts as $h) {
                 <label style="color: #94a3b8; font-size: 12px; font-weight: 500; display: block; margin-bottom: 8px;">Legend & Status</label>
                 <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
                     <div style="display: flex; align-items: center; gap: 10px; color: #e2e8f0;">
-                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #22c55e; border: 1px solid #16a34a;"></span>
+                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #0f172a; border: 2px solid #10b981;"></span>
                         <span>Normal (Healthy)</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; color: #e2e8f0;">
-                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; border: 1px solid #d97706;"></span>
+                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #451a03; border: 2px solid #f59e0b;"></span>
                         <span>Warning Alert</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; color: #e2e8f0;">
-                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 1px solid #b91c1c;"></span>
+                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #4c0519; border: 2px solid #f43f5e;"></span>
                         <span>Critical / Down Alert</span>
                     </div>
                 </div>
@@ -252,7 +240,7 @@ foreach ($hosts as $h) {
             <!-- Dynamic Auto-Layout -->
             <div style="margin-bottom: 20px;">
                 <label style="color: #94a3b8; font-size: 12px; font-weight: 500; display: block; margin-bottom: 6px;">Physics Engine Configuration</label>
-                <button onclick="togglePhysics()" class="btn-alt" style="width: 100%; padding: 8px 12px; background: #3b4252; border: 1px solid #4c566a; border-radius: 6px; color: #e5e9f0; font-size: 13px; cursor: pointer; transition: all 0.2s;" id="physics-toggle">Disable Physics (Freeze Nodes)</button>
+                <button onclick="togglePhysics()" class="btn-alt" style="width: 100%; padding: 8px 12px; background: #334155; border: 1px solid #475569; border-radius: 6px; color: #f1f5f9; font-size: 13px; cursor: pointer; transition: all 0.2s;" id="physics-toggle">Disable Physics (Freeze Nodes)</button>
             </div>
         </div>
 
@@ -283,8 +271,8 @@ foreach ($hosts as $h) {
     </div>
 </div>
 
-<!-- Load Vis-Network script locally -->
-<script type="text/javascript" src="modules/companies/assets/vis-network.min.js"></script>
+<!-- Load Vis-Network script locally using root-relative path to prevent resolution bugs -->
+<script type="text/javascript" src="/zabbix/modules/companies/assets/vis-network.min.js"></script>
 
 <style>
 /* CSS Styling */
@@ -309,7 +297,7 @@ foreach ($hosts as $h) {
     color: #3b82f6;
 }
 .btn-alt:hover {
-    background: #434c5e !important;
+    background: #475569 !important;
 }
 
 /* Custom tooltips matching dark style */
@@ -326,143 +314,138 @@ div.vis-network div.vis-tooltip {
 </style>
 
 <script type="text/javascript">
-// Process dynamic PHP data into JS Arrays
-const rawNodes = <?php echo json_encode($nodes); ?>;
-const rawEdges = <?php echo json_encode($edges); ?>;
+// Safety check if vis library is loaded
+if (typeof vis === 'undefined') {
+    document.getElementById('topology-canvas').innerHTML = `
+        <div style="color: #ef4444; padding: 50px 20px; text-align: center; font-size: 16px; font-weight: 600;">
+            ❌ Vis.js Topology Engine failed to load!
+            <div style="font-size: 13px; color: #94a3b8; font-weight: normal; margin-top: 10px; line-height: 1.6;">
+                Browser was blocked from loading the network graphics script by security policies.<br>
+                Please verify absolute path <code>/zabbix/modules/companies/assets/vis-network.min.js</code> is accessible.
+            </div>
+        </div>
+    `;
+} else {
+    // Process dynamic PHP data into JS Arrays
+    const nodes = <?php echo json_encode($nodes); ?>;
+    const edges = <?php echo json_encode($edges); ?>;
 
-// Set up node icons based on device types using clean SVG strings
-const svgIcons = {
-    server: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64"><rect x="2" y="2" width="20" height="6" rx="1" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/><circle cx="5" cy="5" r="1.5" fill="#22c55e"/><line x1="8" y1="5" x2="18" y2="5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="9" width="20" height="6" rx="1" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/><circle cx="5" cy="12" r="1.5" fill="#22c55e"/><line x1="8" y1="12" x2="18" y2="12" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="16" width="20" height="6" rx="1" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/><circle cx="5" cy="19" r="1.5" fill="#ef4444"/><line x1="8" y1="19" x2="18" y2="19" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-    router: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64"><circle cx="12" cy="12" r="9" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="#3b82f6" stroke-width="2"/><line x1="12" y1="5" x2="12" y2="19" stroke="#3b82f6" stroke-width="2"/><polygon points="9,3 12,0 15,3" fill="#3b82f6"/><polygon points="9,21 12,24 15,21" fill="#3b82f6"/><polygon points="3,9 0,12 3,15" fill="#3b82f6"/><polygon points="21,9 24,12 21,15" fill="#3b82f6"/></svg>`,
-    firewall: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64"><rect x="2" y="2" width="20" height="20" rx="2" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/><path d="M2,6 H22 M2,10 H22 M2,14 H22 M2,18 H22" stroke="#b91c1c" stroke-width="1.5"/><path d="M6,2 V6 M12,2 V6 M18,2 V6 M4,6 V10 M9,6 V10 M14,6 V10 M19,6 V10 M7,10 V14 M13,10 V14 M19,10 V14 M4,14 V18 M10,14 V18 M16,14 V18 M7,18 V22 M13,18 V22 M19,18 V22" stroke="#b91c1c" stroke-width="1.5"/></svg>`
-};
+    // Configure Vis.js Network
+    const container = document.getElementById('topology-canvas');
+    const data = {
+        nodes: new vis.DataSet(nodes),
+        edges: new vis.DataSet(edges)
+    };
 
-// Convert device shape types to SVG URL data strings
-const nodes = rawNodes.map(node => {
-    if (node.shape === 'image') {
-        const type = node.image; // 'server', 'router', 'firewall'
-        const borderCol = node.color.border;
-        let svg = svgIcons[type] || svgIcons['server'];
-        
-        // Inject alert status glow colors
-        if (node.status === 'critical') {
-            svg = svg.replace(/stroke="#[a-zA-Z0-9]+"/g, 'stroke="#ef4444"').replace(/fill="#[a-zA-Z0-9]+"/g, 'fill="#fef2f2"');
-        } else if (node.status === 'warning') {
-            svg = svg.replace(/stroke="#[a-zA-Z0-9]+"/g, 'stroke="#f59e0b"').replace(/fill="#[a-zA-Z0-9]+"/g, 'fill="#fffbeb"');
-        }
-        
-        const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-        node.image = url;
-    }
-    return node;
-});
-
-// Configure Vis.js Network
-const container = document.getElementById('topology-canvas');
-const data = {
-    nodes: new vis.DataSet(nodes),
-    edges: new vis.DataSet(rawEdges)
-};
-
-const options = {
-    nodes: {
-        scaling: {
-            min: 10,
-            max: 30
+    const options = {
+        nodes: {
+            scaling: {
+                min: 10,
+                max: 30
+            },
+            font: {
+                size: 12,
+                face: 'Inter, system-ui, sans-serif'
+            }
         },
-        font: {
-            size: 12,
-            face: 'Inter, system-ui, sans-serif'
-        }
-    },
-    edges: {
-        width: 1.5,
-        smooth: {
-            type: 'continuous',
-            forceDirection: 'none',
-            roundness: 0.5
+        edges: {
+            width: 1.5,
+            smooth: {
+                type: 'continuous',
+                forceDirection: 'none',
+                roundness: 0.5
+            },
+            arrows: {
+                to: { enabled: false }
+            }
         },
-        arrows: {
-            to: { enabled: false }
-        }
-    },
-    physics: {
-        enabled: true,
-        solver: 'forceAtlas2Based',
-        forceAtlas2Based: {
-            gravitationalConstant: -50,
-            centralGravity: 0.010,
-            springLength: 120,
-            springConstant: 0.08,
-            damping: 0.4
-        },
-        stabilization: {
+        physics: {
             enabled: true,
-            iterations: 1000,
-            updateInterval: 50,
-            onlyDynamicEdges: false,
-            fit: true
+            solver: 'forceAtlas2Based',
+            forceAtlas2Based: {
+                gravitationalConstant: -70,
+                centralGravity: 0.015,
+                springLength: 140,
+                springConstant: 0.08,
+                damping: 0.4
+            },
+            stabilization: {
+                enabled: true,
+                iterations: 1000,
+                updateInterval: 50,
+                onlyDynamicEdges: false,
+                fit: true
+            }
+        },
+        interaction: {
+            hover: true,
+            zoomView: true,
+            dragView: true,
+            selectable: true,
+            tooltipDelay: 100
         }
-    },
-    interaction: {
-        hover: true,
-        zoomView: true,
-        dragView: true,
-        selectable: true,
-        tooltipDelay: 100
-    }
-};
+    };
 
-// Initialize network
-let network = new vis.Network(container, data, options);
+    // Initialize network
+    let network = new vis.Network(container, data, options);
 
-// Force fit and redraw to prevent size computation bugs
-setTimeout(() => {
-    network.redraw();
-    network.fit();
-}, 300);
+    // Force fit and redraw to prevent size computation bugs
+    setTimeout(() => {
+        network.redraw();
+        network.fit();
+    }, 400);
+}
 
 // Zoom Actions
 function zoomMap(scaleFactor) {
-    network.zoom(scaleFactor, { animation: { duration: 300 } });
+    if (typeof network !== 'undefined') {
+        network.zoom(scaleFactor, { animation: { duration: 300 } });
+    }
 }
 
 function fitMap() {
-    network.fit({ animation: { duration: 500 } });
+    if (typeof network !== 'undefined') {
+        network.fit({ animation: { duration: 500 } });
+    }
 }
 
 // Toggle physics (allow freezing node coordinates)
 let physicsEnabled = true;
 function togglePhysics() {
-    physicsEnabled = !physicsEnabled;
-    network.setOptions({ physics: { enabled: physicsEnabled } });
-    
-    const btn = document.getElementById('physics-toggle');
-    if (physicsEnabled) {
-        btn.innerHTML = "Disable Physics (Freeze Nodes)";
-        btn.style.background = "#3b4252";
-    } else {
-        btn.innerHTML = "Enable Physics (Float Nodes)";
-        btn.style.background = "#22c55e";
+    if (typeof network !== 'undefined') {
+        physicsEnabled = !physicsEnabled;
+        network.setOptions({ physics: { enabled: physicsEnabled } });
+        
+        const btn = document.getElementById('physics-toggle');
+        if (physicsEnabled) {
+            btn.innerHTML = "Disable Physics (Freeze Nodes)";
+            btn.style.background = "#334155";
+        } else {
+            btn.innerHTML = "Enable Physics (Float Nodes)";
+            btn.style.background = "#10b981";
+        }
     }
 }
 
 // Dynamic Search and Zoom
 function searchHost() {
-    const input = document.getElementById('host-search').value.toLowerCase();
-    if (!input) return;
+    if (typeof network !== 'undefined') {
+        const input = document.getElementById('host-search').value.toLowerCase();
+        if (!input) return;
 
-    const matchedNode = nodes.find(node => {
-        const label = node.label.toLowerCase();
-        return label.includes(input);
-    });
-
-    if (matchedNode) {
-        network.selectNodes([matchedNode.id]);
-        network.focus(matchedNode.id, {
-            scale: 1.5,
-            animation: { duration: 500 }
+        const rawNodes = <?php echo json_encode($nodes); ?>;
+        const matchedNode = rawNodes.find(node => {
+            const label = node.label.toLowerCase();
+            return label.includes(input);
         });
+
+        if (matchedNode) {
+            network.selectNodes([matchedNode.id]);
+            network.focus(matchedNode.id, {
+                scale: 1.5,
+                animation: { duration: 500 }
+            });
+        }
     }
 }
 </script>
