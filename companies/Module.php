@@ -18,7 +18,7 @@ class Module extends CModule {
             APP::Component()->get('menu.main')
                 ->add((new CMenuItem(_('NOC Topology')))
                 ->setAction('companies.topology')
-                ->setIcon('zi-map'));
+                ->setIcon('zi-tree-top-bottom'));
         }
     }
 }
