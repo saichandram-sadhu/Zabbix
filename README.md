@@ -771,7 +771,7 @@ Zabbix's interface discovery templates use the check `{$IFCONTROL:"{#IFNAME}"}=1
 
 ### 🗺️ 5. NOC Dashboard & Geographical Maps (Fixed & Upgraded)
 To fix and upgrade the global overview interface for NOC operators:
-- **Geomap Coordinates Fixed**: Set explicit latitude and longitude coordinates for all hosts globally via API, plotting them accurately on the India-wide Geomap (Delhi, Ahmedabad, Surat, Mumbai).
+- **Geomap Coordinates & Tiles Fixed**: Set explicit latitude and longitude coordinates for all hosts globally via API, plotting them accurately on the India-wide Geomap (Delhi, Ahmedabad, Surat, Mumbai). Updated the global tile provider to **CartoDB Positron CDN** (instead of standard OpenStreetMap) to bypass mixed-content and browser user-agent blocks, resolving the grey blank map issue.
 - **Secondary Dashboard Tab**: Created a new **"Network Topology Map"** page on the Global View dashboard, embedding the live local network connectivity map showing real-time host status.
 
 ---
