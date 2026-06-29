@@ -877,115 +877,161 @@ Zabbix/
 
 ## 🛜 Headscale Self-Hosted Mesh VPN (NOC VPN) Setup Guide
 
-This repository contains a pre-configured **Headscale** server and **Headplane UI** stack inside the `headscale/` directory. When you clone this repository, you can spin up your own private Zero-Trust VPN mesh network alongside Zabbix.
+This repository contains a pre-configured **Headscale** server and **Headplane UI** stack inside the `headscale/` directory. By deploying this stack, you can securely connect Zabbix Proxies and client hosts to your Zabbix Server over an encrypted peer-to-peer mesh network without ports forwarding or public static IPs.
 
-### 📋 Prerequisites
-- **Docker** and **Docker Compose** installed.
-- Open incoming port `8080` (Headscale API) and `8081` (Headplane UI) on the server host's firewall if accessing from outside.
+### 📋 Prerequisites & Port Requirements
+- **Docker** and **Docker Compose** installed on the server host.
+- Open these ports on your Zabbix Server's external firewall:
+  - `8080/tcp`: Headscale control server API (incoming from proxies/clients).
+  - `8081/tcp`: Headplane UI (web management console).
+  - `41641/udp`: Tailscale WireGuard data traffic port (allows direct peer-to-peer pathing).
 
 ---
 
-### 🚀 Step-by-Step Deployment
+### 🚀 Step-by-Step Server Host Setup
 
-#### Step 1: Clone the Repository & Start the Stack
-Navigate to the `headscale` folder inside the cloned repository and launch the container services:
+#### Step 1: Start the VPN Stack
+Navigate to the `headscale` directory inside the repository (on your server host, this is located at `/home/saichandram/headscale/`) and run the start command:
 ```bash
-cd headscale
+# Go to the headscale compose directory
+cd /home/saichandram/headscale
+
+# Spin up the containers in the background
 docker compose up -d
 ```
-This will launch:
-1. **Headscale Server** on port `8080` (backend)
-2. **Headplane Web UI** on port `8081` (frontend under `/admin`)
+Verify both containers are running and healthy:
+```bash
+docker ps
+```
+*(You should see `headscale` listening on `8080` and `headplane` listening on `8081`.)*
 
 ---
 
-#### Step 2: Create a Namespace (User)
-Headscale requires devices to be grouped under namespaces (users). Run this command on the server host to create a default namespace named `noc-network`:
+#### Step 2: Create a Namespace User
+Headscale groups all devices inside namespaces (users). Create the default namespace `noc-network`:
 ```bash
 docker exec headscale headscale users create noc-network
 ```
 
 ---
 
-#### Step 3: Generate an API Key for Web UI
-To log in to the Headplane Web UI panel, you must generate a Headscale API key:
-```bash
-docker exec headscale headscale apikeys create
-```
-Copy the generated key (it starts with `hskey-api-...`).
+#### Step 3: Log in to the Web Console (Headplane UI)
+To manage the network visually, you must connect the Web UI to the Headscale API:
+
+1. **Generate the Web API Key**:
+   ```bash
+   docker exec headscale headscale apikeys create
+   ```
+   *(Copy the generated key beginning with `hskey-api-...`)*
+2. **Access the Console**: Open **`http://<SERVER_PUBLIC_IP>:8081/admin`** in your browser.
+3. **Configure Settings**:
+   - **Headscale URL**: Input `http://<SERVER_PUBLIC_IP>:8080`
+   - **API Key**: Paste the key generated in the previous step.
+4. Click **Save API Key** to open the Tailscale-style machines console.
 
 ---
 
-#### Step 4: Access and Configure the Web UI
-1. Open **`http://<SERVER_IP>:8081/admin`** in your browser.
-2. In the setup wizard:
-   - **Headscale URL**: Set to `http://<SERVER_IP>:8080` (your server's backend port).
-   - **API Key**: Paste the API key generated in **Step 3**.
-3. Click **Save API Key**. You will be redirected to the Headplane admin panel.
+#### Step 4: Generate a Reusable Pre-authorized Key (Auth Key)
+To prevent the manual "copy registration link" step when installing client proxies, you can generate a **reusable pre-auth key**.
+
+> [!IMPORTANT]
+> **Version Constraint**: In Headscale `v0.29.x`+, the `-u` or `--user` flag **strictly requires the numeric User ID**, not the string name.
+
+1. **Find the numeric User ID** of `noc-network`:
+   ```bash
+   docker exec headscale headscale users list
+   ```
+   *(Look at the ID column for `noc-network`, e.g., `1`)*
+2. **Create the Key** (using the numeric ID):
+   ```bash
+   # Reusable key valid for 180 days:
+   docker exec headscale headscale preauthkeys create --user 1 --reusable --expiration 180d
+   ```
+   *(Copy the generated key starting with `hskey-auth-...`)*
 
 ---
 
-#### Step 5: Connect Client Nodes (Zabbix Proxy / Targets)
-To connect a remote Zabbix Proxy or client node to this VPN network, choose one of the following methods:
+### 💻 Connecting Clients & Zabbix Proxies
 
-##### Method A: Using a Pre-authorized Key (Recommended — 100% Automatic)
-This method connects the proxy instantly without copying registration links or manual UI approvals:
+#### Step 5: Install & Connect Zabbix Proxy Nodes
+On each remote Zabbix Proxy machine (Ubuntu/Linux), run these commands:
 
-1. **Install Tailscale** on the remote client machine:
+1. **Install Tailscale**:
    ```bash
    curl -fsSL https://tailscale.com/install.sh | sh
    ```
-2. **Connect Instantly** using the pre-generated reusable auth-key:
+2. **Join the network automatically** (Zero-Touch Setup):
    ```bash
-   sudo tailscale up --login-server http://<SERVER_IP>:8080 --auth-key hskey-auth-D2CyTPUzgT3e-FFUaYQlkMtnFZnRf4gf07PUxC6lZGjMkIZS4sq-V__Znrf6QgdyMeUND-H8AcT35 --accept-dns=false
+   sudo tailscale up --login-server http://<SERVER_PUBLIC_IP>:8080 --auth-key hskey-auth-<YOUR_PRE_AUTH_KEY> --accept-dns=false
    ```
-   *(The device will register automatically under `noc-network` and receive its virtual IP immediately.)*
-
-##### Method B: Manual Approval via Web UI
-1. **Install Tailscale** on the remote client machine:
+   *(Replace `<SERVER_PUBLIC_IP>` with Zabbix Server IP, and `<YOUR_PRE_AUTH_KEY>` with the key generated in Step 4.)*
+3. **Verify IP allocation**:
    ```bash
-   curl -fsSL https://tailscale.com/install.sh | sh
+   tailscale ip -4
    ```
-2. **Launch Connection**:
-   ```bash
-   sudo tailscale up --login-server http://<SERVER_IP>:8080
-   ```
-3. Copy the URL/key (starting with `mkey:...`) printed on the screen.
-4. **Register the Node**: Go to your Headplane UI on **`http://<SERVER_IP>:8081/admin/machines`**, click **Add Device**, select the `noc-network` user, paste the `mkey:...` string, and save.
+   *(The client proxy will show its permanent VPN IP, e.g., `100.64.0.1`)*
 
 ---
 
 #### Step 6: Connect Zabbix Server Host itself
-To allow the Zabbix Server host to talk to the remote Zabbix Proxies, it must also join the Headscale network:
+To allow the Zabbix Server to talk to the proxies over the VPN, the server host must also join:
 
-1. If the server is logged in to a different network, logout first:
+1. **Logout of any existing Tailscale network**:
    ```bash
    sudo tailscale logout
    ```
-2. Join using the pre-authorized key to connect automatically:
+2. **Join the local Headscale network**:
    ```bash
-   sudo tailscale up --login-server http://192.168.1.178:8080 --auth-key hskey-auth-D2CyTPUzgT3e-FFUaYQlkMtnFZnRf4gf07PUxC6lZGjMkIZS4sq-V__Znrf6QgdyMeUND-H8AcT35 --accept-dns=false --force-reauth
+   sudo tailscale up --login-server http://192.168.1.178:8080 --auth-key hskey-auth-<YOUR_PRE_AUTH_KEY> --accept-dns=false --force-reauth
+   ```
+3. Verify connection by pinging the proxy's IP from the server:
+   ```bash
+   ping -c 3 100.64.0.1
    ```
 
-Once both are registered, verify the connection from the Zabbix Server host using ping:
-```bash
-ping -c 3 100.64.0.1
+---
+
+### ⚙️ Zabbix Proxy Configuration under VPN Mesh
+
+Once both the Zabbix Server and Zabbix Proxy are connected to the VPN:
+- Zabbix Server VPN IP: `100.64.0.2`
+- Zabbix Proxy VPN IP: `100.64.0.1`
+
+#### A. If running Zabbix Proxy via Docker Compose:
+In the remote proxy's `docker-compose.yml`, direct the database sync to the Zabbix Server's VPN IP:
+```yaml
+services:
+  zabbix-proxy:
+    image: zabbix/zabbix-proxy-sqlite3:alpine-7.0-latest
+    environment:
+      - ZBX_SERVER_HOST=100.64.0.2  # Point directly to Zabbix Server VPN IP
 ```
+
+#### B. If running Zabbix Proxy natively:
+Edit `/etc/zabbix/zabbix_proxy.conf` on the remote proxy machine:
+```ini
+Server=100.64.0.2  # Point to Zabbix Server VPN IP
+```
+
+#### C. In Zabbix Server Web UI:
+1. Go to **Administration** -> **Proxies** and click **Create Proxy** (or edit existing).
+2. Set the **Proxy Address** or **Interface IP** to the Proxy's VPN IP: `100.64.0.1`.
+3. Save. Data synchronization will now securely route through the encrypted WireGuard tunnel.
 
 ---
 
 ### 🛠️ Useful Management CLI Commands
-Run these commands on the server host to manage the VPN stack:
+Run these commands inside `/home/saichandram/headscale/` on the server host:
 
-*   **View Registered Nodes & IP addresses**:
+*   **View Connected Nodes**:
     ```bash
     docker exec headscale headscale nodes list
     ```
-*   **Generate an Auto-Enrollment Key** (for automatic/passwordless script-based enrollment of Zabbix Proxies):
+*   **List Active Preauth Keys**:
     ```bash
-    docker exec headscale headscale preauthkeys create --user noc-network --reusable --expiration 90d
+    docker exec headscale headscale preauthkeys list --user 1
     ```
-*   **Delete/Remove a Node**:
+*   **Remove/Delete a client node**:
     ```bash
     docker exec headscale headscale nodes delete -i <NODE_ID>
     ```
