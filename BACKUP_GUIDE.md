@@ -1,119 +1,178 @@
-# 🛡️ Zabbix NOC & Headscale VPN — Backup & Recovery Guide
+# 🛡️ Zabbix NOC & Headscale VPN — Complete Backup & Restore Setup Guide (From Scratch)
 
-Welcome to the **Disaster Recovery & Backup Guide** for the Zabbix NOC Monitoring and Headscale VPN mesh platform. 
-
-This guide details the system architecture, setup steps, manual commands, and automatic scheduling for Zabbix server configuration and VPN security key backups.
+This guide provides a step-by-step walkthrough to set up, schedule, and run backups from a **completely fresh installation** of this Zabbix & Headscale platform. Even if you have never configured a backup system before, this guide will help you achieve a production-grade backup strategy.
 
 ---
 
-## 📐 Backup & Recovery System Architecture
+## 📐 Network & Storage Data Flow
 
-This system packages the relational configuration metrics (PostgreSQL) and cryptographic security state (Headscale keys) into a unified, secure archive file, and synchronizes it across three potential destination targets:
+Here is how data flows from your running services to your secure backup storage:
 
 ```mermaid
 graph TD
-    A[Zabbix PostgreSQL DB] -->|pg_dump| C(Unified Backup Archive .tar.gz)
-    B[Headscale Cryptographic Keys] -->|tar| C
+    A[Zabbix PostgreSQL DB] -->|1. Database Dump| C(Unified Backup Archive .tar.gz)
+    B[Headscale Tunnels & Security Keys] -->|2. Config Directory Copy| C
     
     C --> D{Backup Manager}
     
-    D -->|Option 1| E[Local Folder: /home/saichandram/zabbix_backups/]
-    D -->|Option 2| F[Physical Hardware: USB Drive / Network NAS Mount]
-    D -->|Option 3| G[Cloud Storage: AWS S3, Google Drive via rclone]
+    D -->|Target A| E[Local Disk: /home/saichandram/zabbix_backups/]
+    D -->|Target B| F[Physical Hardware: USB Drive or NAS Network Share]
+    D -->|Target C| G[Cloud Storage: AWS S3, Azure Blob, or Google Drive]
 ```
 
 ---
 
-## 🛠️ The Interactive Backup Command Center
+## 📋 Step 1: Install the Required Tools
 
-We have developed a comprehensive command-line tool, [backup_manager.sh](file:///home/saichandram/zabbix/scripts/backups/backup_manager.sh), to let you easily trigger backups and restores using an interactive console menu.
+First, log in to your Ubuntu Server terminal and install the utilities required for database dumping and cloud synchronization:
 
-### How to Run:
-Launch the script as root:
 ```bash
-sudo /home/saichandram/zabbix/scripts/backups/backup_manager.sh
+# 1. Update your system package repository
+sudo apt update
+
+# 2. Install rclone (for Cloud Storage) and PostgreSQL Client (for Database dumping)
+sudo apt install rclone postgresql-client -y
 ```
 
-### Options Available:
-1. **Create Backup**: Instantly dumps the database and keys, compresses them, and prompts you to select where to copy the file (Local, Physical USB/NAS, or Cloud Bucket).
-2. **Restore Backup**: Lists local backup archives, allows picking an external path, or downloads directly from your cloud buckets, then drops the current database and restores everything in a single step.
-3. **Configure Cloud Connection**: Interactive shortcut wizard to link your Google Drive, AWS S3, OneDrive, or Dropbox storage bucket.
-
 ---
 
-## 🗄️ 1. Local & Physical Hardware Backups
+## 🛠️ Step 2: Configure Your Backup Destination (S3, Azure, or Drive)
 
-### Manual CLI Commands (Under the Hood):
-If you want to run these commands manually without the interactive tool:
+You need to tell the server where to upload your backup files. We use **rclone** because it supports virtually every cloud provider in the world.
 
-1. **Dump the PostgreSQL database**:
-   ```bash
-   export PGPASSWORD="StrongPassword@123"
-   pg_dump -h localhost -U zabbix -d zabbix -F c -f /tmp/zabbix_db.dump
-   unset PGPASSWORD
-   ```
-
-2. **Package Headscale configuration and security keys**:
-   ```bash
-   tar -czf /home/saichandram/zabbix_backups/noc_backup_$(date +%Y%m%d).tar.gz -C /tmp/ zabbix_db.dump -C /home/saichandram/headscale/ config/
-   ```
-
-3. **Copy to External USB/NAS Hardware**:
-   ```bash
-   cp /home/saichandram/zabbix_backups/*.tar.gz /mnt/usb_backup_drive/
-   ```
-
----
-
-## ☁️ 2. Cloud Backups (AWS S3 & Azure Blob)
-
-To secure backups offsite, we use **rclone**, the command-line sync utility.
-
-### Rclone Setup & Cloud Link:
-1. Start the cloud link configuration wizard:
+### For Cloud Storage (AWS S3, Azure, Google Drive, OneDrive)
+1. Run the interactive cloud link setup wizard:
    ```bash
    sudo rclone config
    ```
-2. Follow the steps to link **AWS S3** or **Azure Blob** (refer to our [Access Keys Creation Guide](file:///home/saichandram/.gemini/antigravity-ide/brain/e001994e-898c-41ab-badb-496ed9efb3f8/backup_architecture_guide.md) for step-by-step key generation).
+2. Type **`n`** to create a new remote configuration, and name it: **`zabbix`**
+3. Select your storage provider from the list (e.g., `s3` for AWS, `azureblob` for Azure, `drive` for Google Drive).
+4. Enter your credentials:
+   * **For AWS S3**: Enter Access Key ID, Secret Access Key, Region (`ap-south-1` for India), and location constraints.
+   * **For Azure Blob**: Enter your Azure Storage Account name and Access Key.
+   * **For Google Drive**: Follow the 1-click web login authorization prompt.
+5. Exit the wizard by typing **`q`**.
 
-### Manual Cloud Upload:
-Upload the local backup directory to your S3/Azure bucket:
+### For Physical Hardware Storage (USB Drive or NAS Network share)
+If you are using a physical external hard drive or an office NAS:
+1. Plug in the USB drive or configure your NAS shared folder (NFS/Samba).
+2. Mount the drive to a directory on your server:
+   ```bash
+   sudo mkdir -p /mnt/backup_hardware
+   sudo mount /dev/sdX1 /mnt/backup_hardware  # For USB
+   # OR
+   sudo mount -t nfs <NAS_IP>:/shared_folder /mnt/backup_hardware  # For NAS
+   ```
+
+---
+
+## 🪣 Step 3: Create the Backup Container/Bucket
+
+Before running the backup, you must create the bucket/folder in your cloud storage:
+
 ```bash
-sudo rclone copy /home/saichandram/zabbix_backups/ zabbix:zabbix-backups-saichandram
+# Create the bucket (replace 'zabbix-backups-saichandram' with your own unique name)
+sudo rclone mkdir zabbix:zabbix-backups-saichandram
 ```
 
 ---
 
-## ⏰ 3. Automatic Daily Backups (Cron Job)
+## ⚙️ Step 4: Configure Your Backup Script Variables
 
-To ensure your system is backed up without manual effort, we have scheduled a daily cron job that runs every night at **2:00 AM**.
+Inside your cloned Zabbix repository, navigate to the backup script folder:
+`scripts/backups/`
 
-*   **Config file path**: `/etc/cron.d/zabbix-backup`
-*   **Cron instruction**:
-    ```text
-    0 2 * * * root /home/saichandram/zabbix/scripts/backups/backup.sh > /var/log/zabbix_backup.log 2>&1
-    ```
-*   **Monitoring Logs**: To verify if last night's backup ran successfully, run:
-    ```bash
-    cat /var/log/zabbix_backup.log
-    ```
+Open **[backup.sh](file:///home/saichandram/zabbix/scripts/backups/backup.sh)** in a text editor and update the following settings to match your database and folder paths:
+
+```bash
+# Open script for editing:
+nano scripts/backups/backup.sh
+```
+
+### Config variables to check inside the script:
+*   `BACKUP_DIR`: Path where local backups are stored on this server (e.g. `/home/saichandram/zabbix_backups`).
+*   `HEADSCALE_DIR`: Path where your headscale folder is located (e.g. `/home/saichandram/headscale`).
+*   `DB_NAME`: Zabbix database name (default: `zabbix`).
+*   `DB_USER`: Zabbix database user (default: `zabbix`).
+*   `DB_PASS`: Zabbix database password (default: `StrongPassword@123`).
+*   `rclone copy ...`: Modify `"zabbix:zabbix-backups-saichandram"` to match your configured rclone remote and bucket name.
+
+Make the scripts executable on your system:
+```bash
+chmod +x scripts/backups/backup.sh scripts/backups/backup_manager.sh scripts/backups/restore.sh
+```
 
 ---
 
-## 🔄 4. Disaster Recovery (Single-Command Restore)
+## 🚀 Step 5: Test Run the Backup
 
-If the server crashes or files get corrupted, you can restore everything back to its normal, fully-functional state with a single command:
+Let's test the backup manually to ensure the database dumps successfully, files compress, and upload to the cloud works:
 
 ```bash
-sudo /home/saichandram/zabbix/scripts/backups/restore.sh <path_to_backup_file.tar.gz>
+sudo ./scripts/backups/backup.sh
 ```
 
-> [!WARNING]
-> Running the restore script will drop the current Zabbix database, overwrite Headscale configurations, and recreate the database with the backup data. Ensure you select the correct archive file before proceeding.
+### Expected Output Logs:
+```text
+=== [1/5] Creating directories ===
+=== [2/5] Exporting Zabbix PostgreSQL Database ===
+=== [3/5] Backing up Headscale configuration and security keys ===
+=== [4/5] Compressing all backup components into unified archive ===
+=== [5/5] Backup created successfully ===
+Local Backup File: /home/saichandram/zabbix_backups/noc_backup_xxxxxx.tar.gz
+=== [Sync] Uploading backup to AWS S3 bucket via rclone ===
+=== [Sync] Upload complete ===
+```
 
-### What the Restore Script Does Automatically:
-1. Stops the running Zabbix Server and stops the Headscale Docker containers.
-2. Drops and recreates the PostgreSQL database to ensure a clean slate.
-3. Restores the database schema and monitoring history.
-4. Unpacks and restores the Headscale config files and cryptographic private keys back to `/home/saichandram/headscale/`.
-5. Starts the Docker containers and restarts Zabbix Server & Apache.
+To verify the file is physically present in the cloud, run:
+```bash
+sudo rclone lsf zabbix:zabbix-backups-saichandram
+```
+
+---
+
+## ⏰ Step 6: Setup Automatic Daily Backups (Cron Job)
+
+To configure the server to run this backup automatically every night at **2:00 AM**:
+
+1. Create a cron configuration file in `/etc/cron.d/`:
+   ```bash
+   sudo nano /etc/cron.d/zabbix-backup
+   ```
+2. Paste the following line inside the file:
+   ```text
+   0 2 * * * root /home/saichandram/zabbix/scripts/backups/backup.sh > /var/log/zabbix_backup.log 2>&1
+   ```
+3. Save and close (Ctrl+O, Enter, Ctrl+X).
+4. The system will now automatically run the backup daily. You can monitor the logs at `/var/log/zabbix_backup.log`.
+
+---
+
+## 🔄 Step 7: How to Restore (Disaster Recovery on a New Server)
+
+If your server crashes, or you need to migrate to a completely new machine, follow this restore process:
+
+### 1. Set up the new server:
+* Clone this repository onto the new server:
+  ```bash
+  git clone https://github.com/saichandram-sadhu/Zabbix.git
+  cd Zabbix
+  ```
+* Launch the empty Zabbix & Headscale containers:
+  ```bash
+  docker compose up -d
+  ```
+
+### 2. Run the Restore Script:
+Get your backup archive file (`noc_backup_xxxx.tar.gz`) from your S3 Cloud / USB Drive, copy it to the new server, and run:
+
+```bash
+sudo ./scripts/backups/restore.sh /path/to/noc_backup_xxxx.tar.gz
+```
+
+### What this script does automatically behind the scenes:
+1. Stops the running Zabbix Server and Docker containers to prevent database writing locks.
+2. Drops the current empty database and recreates it.
+3. Restores the database schema and full monitoring history from your backup dump.
+4. Overwrites the Headscale folders with the restored keys, ensuring all your remote proxies connect immediately without needing registration.
+5. Restarts all services and Zabbix Server.
