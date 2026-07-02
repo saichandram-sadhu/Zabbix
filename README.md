@@ -1020,6 +1020,19 @@ Server=100.64.0.2  # Point to Zabbix Server VPN IP
 
 ---
 
+## 🛡️ Backup & Disaster Recovery (Local, Hardware & Cloud)
+
+We have built an automated backup pipeline that packages the Zabbix PostgreSQL database and Headscale VPN keys, uploads them to your AWS S3 bucket, and runs daily at **2:00 AM**.
+
+*   **Interactive Command Center**: Trigger backups & restores manually using our terminal tool:
+    ```bash
+    sudo /home/saichandram/zabbix/scripts/backups/backup_manager.sh
+    ```
+*   **Detailed Guide**: Read our step-by-step guide explaining S3/Azure setups, manual commands, and restore procedures:
+    👉 **[Full Backup & Recovery Console Guide (BACKUP_GUIDE.md)](BACKUP_GUIDE.md)**
+
+---
+
 ### 🛠️ Useful Management CLI Commands
 Run these commands inside `/home/saichandram/headscale/` on the server host:
 
