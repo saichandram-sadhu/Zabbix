@@ -50,14 +50,11 @@ echo "=== [5/5] Backup created successfully ==="
 echo "Local Backup File: $BACKUP_FILE"
 ls -lh "$BACKUP_FILE"
 
-# --- CLOUD BACKUP SYNC OPTION (OPTIONAL) ---
-# If you want to automatically upload this backup to the cloud (Google Drive, Dropbox, AWS S3, etc.),
-# uncomment the lines below and configure rclone:
-#
-# if command -v rclone &> /dev/null; then
-#     echo "=== [Sync] Uploading backup to Cloud storage via rclone ==="
-#     rclone copy "$BACKUP_FILE" "mycloudremote:zabbix-backups"
-#     echo "=== [Sync] Upload complete ==="
-# else
-#     echo "=== [Sync Skip] rclone is not installed. Keeping local backup only ==="
-# fi
+# --- CLOUD BACKUP SYNC OPTION (AUTOMATED) ---
+if command -v rclone &> /dev/null; then
+    echo "=== [Sync] Uploading backup to AWS S3 bucket via rclone ==="
+    rclone copy "$BACKUP_FILE" "zabbix:zabbix-backups-saichandram"
+    echo "=== [Sync] Upload complete ==="
+else
+    echo "=== [Sync Skip] rclone is not installed. Keeping local backup only ==="
+fi
