@@ -49,21 +49,27 @@ Provide a local VM in the client's LAN with the following specifications:
 
 ### **B. Step-by-Step CLI Installation Commands**
 
-Log in to the client's Proxy VM via SSH and execute the following commands in order:
+#### **Step 1: Generate Reusable Pre-Auth Key on TechMonarch NOC Server**
+Before setting up the client side, run this command on your **NOC Server** to generate an automatic registration token:
+```bash
+docker exec headscale headscale preauthkeys create -u 1 --reusable -e 30d
+```
+*Copy the generated key (looks like `hskey-auth--L-GpV...`).*
 
-#### **Step 1: Connect Tailscale to the NOC Headscale Server**
+#### **Step 2: Connect Tailscale on Client's Proxy VM**
+Log in to the client's Proxy VM via SSH and run:
 ```bash
 # 1. Install Tailscale client
 curl -fsSL https://tailscale.com/install.sh | sh
 
-# 2. Authenticate directly to the NOC public static IP
-sudo tailscale up --login-server http://122.170.96.200:8080 --auth-key <YOUR_HEADSCALE_AUTH_KEY>
+# 2. Authenticate directly using the generated pre-auth key
+sudo tailscale up --login-server http://122.170.96.200:8080 --accept-dns=false --authkey <NOC_SE_GENERATED_KEY>
 
-# 3. Verify connection and note down the assigned VPN IP (e.g. 100.64.0.3)
+# 3. Verify connection and check the assigned VPN IP (e.g. 100.64.0.3)
 tailscale ip -4
 ```
 
-#### **Step 2: Add Zabbix Official Repository (Version 7.0 LTS)**
+#### **Step 3: Add Zabbix Official Repository (Version 7.0 LTS)**
 ```bash
 # 1. Download repository config package
 wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-1+ubuntu22.04_all.deb
@@ -75,12 +81,12 @@ sudo dpkg -i zabbix-release_7.0-1+ubuntu22.04_all.deb
 sudo apt update
 ```
 
-#### **Step 3: Install Zabbix Proxy with SQLite3 Database**
+#### **Step 4: Install Zabbix Proxy with SQLite3 Database**
 ```bash
 sudo apt install zabbix-proxy-sqlite3 -y
 ```
 
-#### **Step 4: Initialize the SQLite3 Database File**
+#### **Step 5: Initialize the SQLite3 Database File**
 ```bash
 # Create the directory for database
 sudo mkdir -p /var/lib/zabbix
@@ -89,19 +95,19 @@ sudo mkdir -p /var/lib/zabbix
 sudo chown -R zabbix:zabbix /var/lib/zabbix
 ```
 
-#### **Step 5: Edit the Proxy Configuration file**
+#### **Step 6: Edit the Proxy Configuration file**
 ```bash
 sudo nano /etc/zabbix/zabbix_proxy.conf
 ```
 Update the following parameters inside the configuration file:
 ```ini
 Server=100.64.0.2                       # Zabbix NOC Server VPN IP
-Hostname=Proxy_ISK                      # Unique proxy ID matching Zabbix Web UI
+Hostname=ISK                            # Unique proxy ID matching Zabbix Web UI
 DBName=/var/lib/zabbix/zabbix_proxy.db   # File path for SQLite3 DB
 ProxyMode=0                             # 0 = Active mode (Proxy pushes data to Server)
 ```
 
-#### **Step 6: Start and Enable the Proxy Daemon**
+#### **Step 7: Start and Enable the Proxy Daemon**
 ```bash
 sudo systemctl enable zabbix-proxy
 sudo systemctl start zabbix-proxy
@@ -133,8 +139,8 @@ To monitor the Windows Server (e.g., Domain Controller / Database Server at `192
 2. Set configuration values:
    *   **Host name**: `ISK_Windows_Server`
    *   **Templates**: Link `Windows by SNMP`
-   *   **Host Groups**: Select `Tenant - ISK`
-   *   **Monitored by proxy**: Select `Proxy_ISK`
+   *   **Host Groups**: Select `ISK`
+   *   **Monitored by proxy**: Select `ISK`
    *   **Interfaces**: Click **Add** ➔ Select **`SNMP`** ➔ Enter Local IP `192.168.10.100` and Port `161`.
 3. Navigate to **`Macros`** tab ➔ Click **Inherited and host macros**:
    *   Add macro: `{$SNMP_COMMUNITY}` ➔ Value: `isk_noc_public`.
