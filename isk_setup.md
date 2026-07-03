@@ -63,7 +63,7 @@ Log in to the client's Proxy VM via SSH and run:
 curl -fsSL https://tailscale.com/install.sh | sh
 
 # 2. Authenticate directly using the generated pre-auth key
-sudo tailscale up --login-server http://122.170.96.200:8080 --accept-dns=false --authkey <NOC_SE_GENERATED_KEY>
+sudo tailscale up --login-server http://122.170.96.200:8080 --accept-dns=false --authkey hskey-auth-Zpa3amo0ooUR-mXfSLN6xrHPlTSqF1_TK3qjomb1nxNGihQZKxxkEzeCVqSClgasCFOvFTAnKLsP5
 
 # 3. Verify connection and check the assigned VPN IP (e.g. 100.64.0.3)
 tailscale ip -4
