@@ -1,91 +1,189 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="100%" height="100%" style="background: #0B0F19; font-family: 'Inter', sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 550" width="100%" height="100%" style="background: #0B0F19; font-family: 'Inter', sans-serif;">
+  <style>
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -40;
+      }
+    }
+    @keyframes pulse-glow {
+      0% { opacity: 0.2; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.2; }
+    }
+    @keyframes scale-up {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    @keyframes led-blink {
+      0%, 100% { fill: #10B981; }
+      50% { fill: #047857; }
+    }
+    .tunnel-link {
+      stroke-dasharray: 10, 6;
+      animation: dash 2s linear infinite;
+    }
+    .snmp-link {
+      stroke-dasharray: 6, 4;
+      animation: dash 1.5s linear infinite;
+    }
+    .glow-bg {
+      animation: pulse-glow 4s ease-in-out infinite;
+    }
+    .node-card {
+      transform-origin: center;
+      animation: scale-up 4s ease-in-out infinite;
+    }
+    .status-led {
+      animation: led-blink 1.5s infinite;
+    }
+  </style>
+
   <defs>
-    <!-- Glowing Shadow Filter -->
-    <filter id="glow-teal" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
+    <!-- Glowing Shadow Filters -->
+    <filter id="glow-teal" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
-    <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
+    <filter id="glow-purple" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-orange" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
     
-    <!-- Gradients -->
+    <!-- Linear Gradients for Premium Aesthetics -->
     <linearGradient id="noc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F766E" />
+      <stop offset="0%" stop-color="#0D9488" />
       <stop offset="100%" stop-color="#14B8A6" />
     </linearGradient>
     <linearGradient id="proxy-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6D28D9" />
-      <stop offset="100%" stop-color="#8B5CF6" />
+      <stop offset="0%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#A78BFA" />
     </linearGradient>
     <linearGradient id="win-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#B45309" />
-      <stop offset="100%" stop-color="#F59E0B" />
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#FBBF24" />
     </linearGradient>
-    <linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="tunnel-grad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#14B8A6" />
       <stop offset="50%" stop-color="#3B82F6" />
-      <stop offset="100%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#7C3AED" />
     </linearGradient>
   </defs>
 
-  <!-- Title -->
-  <text x="500" y="40" text-anchor="middle" fill="#F3F4F6" font-size="22" font-weight="700" letter-spacing="1">ISK CLIENT MONITORING TOPOLOGY</text>
-  <text x="500" y="65" text-anchor="middle" fill="#9CA3AF" font-size="14">Secure Headscale VPN Mesh + Agentless SNMP Relay</text>
+  <!-- Background Grid Pattern for Tech Vibe -->
+  <rect width="1000" height="550" fill="#0B0F19" />
+  <g opacity="0.05">
+    <path d="M 0 50 L 1000 50 M 0 100 L 1000 100 M 0 150 L 1000 150 M 0 200 L 1000 200 M 0 250 L 1000 250 M 0 300 L 1000 300 M 0 350 L 1000 350 M 0 400 L 1000 400 M 0 450 L 1000 450 M 0 500 L 1000 500" stroke="#FFFFFF" stroke-width="1" />
+    <path d="M 50 0 L 50 550 M 100 0 L 100 550 M 150 0 L 150 550 M 200 0 L 200 550 M 250 0 L 250 550 M 300 0 L 300 550 M 350 0 L 350 550 M 400 0 L 400 550 M 450 0 L 450 550 M 500 0 L 500 550 M 550 0 L 550 550 M 600 0 L 600 550 M 650 0 L 650 550 M 700 0 L 700 550 M 750 0 L 750 550 M 800 0 L 800 550 M 850 0 L 850 550 M 900 0 L 900 550 M 950 0 L 950 550" stroke="#FFFFFF" stroke-width="1" />
+  </g>
 
-  <!-- Network Areas -->
-  <!-- NOC Group -->
-  <rect x="50" y="110" width="380" height="340" rx="16" fill="#111827" stroke="#1F2937" stroke-width="2" />
-  <text x="240" y="140" text-anchor="middle" fill="#9CA3AF" font-size="14" font-weight="600" letter-spacing="0.5">HYDERABAD NOC SERVER (CENTRAL)</text>
+  <!-- Title & Subtitle -->
+  <text x="500" y="35" text-anchor="middle" fill="#F3F4F6" font-size="22" font-weight="800" letter-spacing="1.5">HYBRID MONITORING NETWORK ARCHITECTURE</text>
+  <text x="500" y="60" text-anchor="middle" fill="#9CA3AF" font-size="13" font-weight="500">Encrypted Headscale VPN Mesh + Local Agentless SNMP Gateway</text>
 
-  <!-- Client Group -->
-  <rect x="570" y="110" width="380" height="340" rx="16" fill="#111827" stroke="#1F2937" stroke-width="2" />
-  <text x="760" y="140" text-anchor="middle" fill="#9CA3AF" font-size="14" font-weight="600" letter-spacing="0.5">ISK REMOTE OFFICE LAN</text>
+  <!-- Network Group Boxes -->
+  <!-- NOC Group (Hyderabad) -->
+  <rect x="40" y="100" width="380" height="410" rx="20" fill="#111827" stroke="#1F2937" stroke-width="2" />
+  <rect x="40" y="100" width="380" height="410" rx="20" fill="#0D9488" opacity="0.03" />
+  <text x="230" y="130" text-anchor="middle" fill="#14B8A6" font-size="13" font-weight="700" letter-spacing="1">HYDERABAD NOC SERVER (CENTRAL)</text>
+
+  <!-- Client Group (ISK Office) -->
+  <rect x="580" y="100" width="380" height="410" rx="20" fill="#111827" stroke="#1F2937" stroke-width="2" />
+  <rect x="580" y="100" width="380" height="410" rx="20" fill="#7C3AED" opacity="0.03" />
+  <text x="770" y="130" text-anchor="middle" fill="#A78BFA" font-size="13" font-weight="700" letter-spacing="1">ISK REMOTE CLIENT OFFICE (LAN)</text>
 
   <!-- Connections -->
-  <!-- Encrypted Tunnel Line -->
-  <path d="M 330 250 L 670 250" stroke="url(#line-grad)" stroke-width="5" stroke-dasharray="10 5" filter="url(#glow-teal)" />
-  <!-- Local SNMP Query Link -->
-  <path d="M 760 290 L 760 370" stroke="#F59E0B" stroke-width="3" stroke-dasharray="5 3" />
-
-  <!-- Labels on Tunnel -->
-  <rect x="420" y="225" width="160" height="50" rx="8" fill="#1F2937" stroke="#374151" />
-  <text x="500" y="244" text-anchor="middle" fill="#F3F4F6" font-size="11" font-weight="600">Tailscale Encrypted Tunnel</text>
-  <text x="500" y="264" text-anchor="middle" fill="#10B981" font-size="10" font-weight="700">WireGuard P2P Protocol</text>
-
-  <!-- Nodes -->
-  <!-- 1. Central Zabbix NOC Server -->
-  <g transform="translate(90, 170)">
-    <rect x="0" y="0" width="240" height="100" rx="12" fill="url(#noc-grad)" filter="url(#glow-teal)" />
-    <text x="20" y="30" fill="#FFFFFF" font-size="15" font-weight="700">Zabbix Server &amp; Headscale</text>
-    <text x="20" y="55" fill="#E0F2FE" font-size="12">Public IP: 122.170.96.200</text>
-    <text x="20" y="75" fill="#E0F2FE" font-size="12">VPN IP: 100.64.0.2 (Port 10051)</text>
-  </g>
+  <!-- Encrypted Headscale VPN Tunnel -->
+  <path d="M 320 235 L 680 235" stroke="url(#tunnel-grad)" stroke-width="5" fill="none" class="tunnel-link" filter="url(#glow-teal)" />
   
-  <!-- Central Router Symbol -->
-  <g transform="translate(190, 310)">
-    <rect x="0" y="0" width="160" height="90" rx="8" fill="#1F2937" stroke="#0D9488" stroke-width="2" />
-    <text x="80" y="25" text-anchor="middle" fill="#E5E7EB" font-size="12" font-weight="600">Central ISP Router</text>
-    <text x="80" y="50" text-anchor="middle" fill="#9CA3AF" font-size="10">Forward TCP 8080 (Login)</text>
-    <text x="80" y="70" text-anchor="middle" fill="#9CA3AF" font-size="10">Forward UDP 41641 (P2P)</text>
+  <!-- Local LAN SNMP query link -->
+  <path d="M 770 295 L 770 380" stroke="#F59E0B" stroke-width="3" fill="none" class="snmp-link" filter="url(#glow-orange)" />
+
+  <!-- Animated VPN Packet (Teal/Blue Glow Dot) -->
+  <circle r="6" fill="#60A5FA" filter="url(#glow-teal)">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M 680 235 L 320 235" />
+  </circle>
+
+  <!-- Animated SNMP Request (Amber Dot) -->
+  <circle r="4.5" fill="#FBBF24" filter="url(#glow-orange)">
+    <animateMotion dur="2.5s" repeatCount="indefinite" path="M 770 380 L 770 295" />
+  </circle>
+
+  <!-- Tunnel Lock & Encryption Banner -->
+  <g transform="translate(425, 210)">
+    <rect x="0" y="0" width="150" height="50" rx="10" fill="#1F2937" stroke="#374151" stroke-width="1.5" />
+    <text x="75" y="22" text-anchor="middle" fill="#F9FAFB" font-size="11" font-weight="700" letter-spacing="0.5">WireGuard Tunnel</text>
+    <text x="75" y="38" text-anchor="middle" fill="#10B981" font-size="9" font-weight="800">100% Encrypted P2P</text>
   </g>
 
-  <!-- 2. Client Zabbix Proxy -->
-  <g transform="translate(670, 180)">
-    <rect x="0" y="0" width="240" height="110" rx="12" fill="url(#proxy-grad)" filter="url(#glow-purple)" />
-    <text x="20" y="30" fill="#FFFFFF" font-size="15" font-weight="700">Zabbix Proxy VM</text>
-    <text x="20" y="55" fill="#F5F3FF" font-size="12">OS: Ubuntu Server 22.04</text>
-    <text x="20" y="75" fill="#F5F3FF" font-size="12">Local IP: 192.168.10.50</text>
-    <text x="20" y="95" fill="#F5F3FF" font-size="12">VPN IP: 100.64.0.3 (Active Mode)</text>
+  <!-- Nodes & Servers Configuration -->
+
+  <!-- Node 1: Zabbix Central NOC Server (Teal) -->
+  <g transform="translate(80, 160)" class="node-card">
+    <!-- Glowing behind card -->
+    <rect x="-5" y="-5" width="230" height="110" rx="16" fill="#14B8A6" opacity="0.15" filter="url(#glow-teal)" />
+    <!-- Main Card -->
+    <rect x="0" y="0" width="220" height="100" rx="14" fill="url(#noc-grad)" />
+    <text x="20" y="28" fill="#F9FAFB" font-size="14" font-weight="800">Zabbix NOC Server</text>
+    <text x="20" y="52" fill="#CCFBF1" font-size="11" font-weight="600">Public IP: 122.170.96.200</text>
+    <text x="20" y="72" fill="#CCFBF1" font-size="11" font-weight="600">VPN IP: 100.64.0.2 (Port 10051)</text>
+    <!-- Server Status LED -->
+    <circle cx="195" cy="25" r="5" fill="#10B981" class="status-led" />
   </g>
-  
-  <!-- 3. Client Windows Server (Agentless) -->
-  <g transform="translate(670, 320)">
-    <rect x="0" y="0" width="240" height="100" rx="12" fill="url(#win-grad)" />
-    <text x="20" y="30" fill="#FFFFFF" font-size="14" font-weight="700">Windows Server (AD/DB)</text>
-    <text x="20" y="55" fill="#FEF3C7" font-size="12">Agent Status: Agentless</text>
-    <text x="20" y="75" fill="#FEF3C7" font-size="12">Local IP: 192.168.10.100</text>
-    <text x="20" y="92" fill="#F59E0B" font-size="10" font-weight="700">Monitoring via SNMP Port 161</text>
+
+  <!-- Node 2: NOC Router / Gateway (Dark Grey) -->
+  <g transform="translate(140, 310)">
+    <rect x="0" y="0" width="200" height="110" rx="12" fill="#1F2937" stroke="#14B8A6" stroke-width="2" />
+    <text x="100" y="25" text-anchor="middle" fill="#F3F4F6" font-size="12" font-weight="700">Central ISP Router (NOC)</text>
+    <!-- Port forwarding list -->
+    <rect x="15" y="38" width="170" height="22" rx="4" fill="#111827" />
+    <text x="100" y="53" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="700">TCP 8080 ➔ Headscale</text>
+    <rect x="15" y="66" width="170" height="22" rx="4" fill="#111827" />
+    <text x="100" y="81" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="700">UDP 41641 ➔ Tailscale</text>
+    <!-- Physical LAN indicator link -->
+    <path d="M -20 -50 L 40 0" stroke="#14B8A6" stroke-width="1.5" stroke-dasharray="3 3" />
+  </g>
+
+  <!-- Node 3: Remote Zabbix Proxy VM (Purple) -->
+  <g transform="translate(650, 160)" class="node-card">
+    <!-- Glowing behind card -->
+    <rect x="-5" y="-5" width="250" height="130" rx="16" fill="#7C3AED" opacity="0.15" filter="url(#glow-purple)" />
+    <!-- Main Card -->
+    <rect x="0" y="0" width="240" height="120" rx="14" fill="url(#proxy-grad)" />
+    <text x="20" y="28" fill="#F9FAFB" font-size="14" font-weight="800">Zabbix Proxy VM (ISK)</text>
+    <text x="20" y="52" fill="#EDE9FE" font-size="11" font-weight="600">Sizing: 1-2 vCPU, 2GB RAM</text>
+    <text x="20" y="72" fill="#EDE9FE" font-size="11" font-weight="600">Local LAN IP: 192.168.10.50</text>
+    <text x="20" y="92" fill="#EDE9FE" font-size="11" font-weight="600">VPN IP: 100.64.0.3 (SQLite3 DB)</text>
+    <!-- Proxy Status LED -->
+    <circle cx="215" cy="25" r="5" fill="#10B981" class="status-led" />
+  </g>
+
+  <!-- Node 4: Client Target Windows Server (Amber / Agentless) -->
+  <g transform="translate(650, 360)">
+    <!-- Main Card -->
+    <rect x="0" y="0" width="240" height="110" rx="14" fill="url(#win-grad)" filter="url(#glow-orange)" />
+    <text x="20" y="28" fill="#F9FAFB" font-size="14" font-weight="800">Windows Server (ISK)</text>
+    <text x="20" y="52" fill="#FEF3C7" font-size="11" font-weight="600">Type: Client Target System</text>
+    <text x="20" y="72" fill="#FEF3C7" font-size="11" font-weight="600">Local LAN IP: 192.168.10.100</text>
+    <text x="20" y="95" fill="#B45309" font-size="10" font-weight="800">Agentless Monitoring (SNMP Port 161)</text>
+  </g>
+
+  <!-- Custom Legend at the Bottom -->
+  <g transform="translate(190, 480)" opacity="0.8">
+    <circle cx="20" cy="15" r="6" fill="#14B8A6" />
+    <text x="32" y="19" fill="#E5E7EB" font-size="11" font-weight="600">NOC Central Site</text>
+
+    <circle cx="160" cy="15" r="6" fill="#8B5CF6" />
+    <text x="172" y="19" fill="#E5E7EB" font-size="11" font-weight="600">Tailscale VPN</text>
+
+    <circle cx="290" cy="15" r="6" fill="#F59E0B" />
+    <text x="302" y="19" fill="#E5E7EB" font-size="11" font-weight="600">Client Remote Site</text>
+
+    <circle cx="440" cy="15" r="6" fill="#10B981" />
+    <text x="452" y="19" fill="#E5E7EB" font-size="11" font-weight="600">P2P Active Handshake</text>
   </g>
 </svg>
