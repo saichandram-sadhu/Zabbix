@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ISK Client Setup & Monitoring Deployment Guide</title>
+  <title>SoluteLab Client Setup & Monitoring Deployment Guide</title>
   <!-- Google Fonts Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -340,7 +340,7 @@
   <!-- Main Content Area -->
   <main>
     <header>
-      <h1>🌐 ISK Client Setup & Monitoring Deployment Guide</h1>
+      <h1>🌐 SoluteLab Client Setup & Monitoring Deployment Guide</h1>
       <div class="subtitle">Secure Headscale VPN + Agentless SNMP Zabbix Proxy Setup</div>
     </header>
 
@@ -388,7 +388,7 @@
           <rect width="1100" height="700" rx="12" fill="#0F172A" />
 
           <!-- Title -->
-          <text x="550" y="42" text-anchor="middle" fill="#F1F5F9" font-family="system-ui, sans-serif" font-size="24" font-weight="800">ISK Client — Network Monitoring Architecture</text>
+          <text x="550" y="42" text-anchor="middle" fill="#F1F5F9" font-family="system-ui, sans-serif" font-size="24" font-weight="800">SoluteLab Client — Network Monitoring Architecture</text>
           <text x="550" y="68" text-anchor="middle" fill="#64748B" font-family="system-ui, sans-serif" font-size="14">Headscale VPN Tunnel + Agentless SNMP Monitoring via Zabbix Proxy</text>
 
           <!-- NOC -->
@@ -430,7 +430,7 @@
           <rect x="620" y="95" width="440" height="560" rx="16" fill="#1E293B" stroke="#334155" stroke-width="1.5" />
           <rect x="620" y="95" width="440" height="40" rx="16" fill="#7C3AED" />
           <rect x="620" y="120" width="440" height="15" fill="#7C3AED" />
-          <text x="840" y="122" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700">ISK CLIENT OFFICE (Remote Site)</text>
+          <text x="840" y="122" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700">SoluteLab CLIENT OFFICE (Remote Site)</text>
 
           <!-- Proxy VM Card -->
           <rect x="660" y="160" width="360" height="150" rx="12" fill="#2E1065" stroke="#A78BFA" stroke-width="1.5" />
@@ -447,7 +447,7 @@
           <text x="680" y="410" fill="#FEF3C7" font-family="system-ui, sans-serif" font-size="16" font-weight="800">Windows Server (Agentless)</text>
           <text x="680" y="435" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Local IP: 192.168.10.100</text>
           <text x="680" y="455" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Protocol: SNMP v2c (Port 161)</text>
-          <text x="680" y="475" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Community: isk_noc_public</text>
+          <text x="680" y="475" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Community: solutelab_noc_public</text>
           <rect x="680" y="485" width="180" height="18" rx="6" fill="#78350F" />
           <text x="770" y="498" text-anchor="middle" fill="#FBBF24" font-family="system-ui, sans-serif" font-size="10" font-weight="800">NO AGENT INSTALLED</text>
 
@@ -632,7 +632,7 @@ sudo chown -R zabbix:zabbix /var/lib/zabbix</code></pre>
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         </div>
         <pre><code>Server=100.64.0.2                       # Zabbix NOC Server VPN IP
-Hostname=ISK                            # Unique proxy ID matching Zabbix Web UI
+Hostname=SoluteLab                            # Unique proxy ID matching Zabbix Web UI
 DBName=/var/lib/zabbix/zabbix_proxy.db   # File path for SQLite3 DB
 ProxyMode=0                             # 0 = Active mode (Proxy pushes data to Server)</code></pre>
       </div>
@@ -664,7 +664,7 @@ sudo systemctl status zabbix-proxy</code></pre>
         <li>Navigate to the <strong><code>Security</code></strong> tab:
           <ul>
             <li>Under <strong>Accepted community names</strong>, click <strong>Add</strong>.</li>
-            <li>Set Community Name: <span class="inline-code">isk_noc_public</span> and Community Rights: <strong><code>READ ONLY</code></strong>.</li>
+            <li>Set Community Name: <span class="inline-code">solutelab_noc_public</span> and Community Rights: <strong><code>READ ONLY</code></strong>.</li>
             <li>Select <strong><code>Accept SNMP packets from these hosts</code></strong>, click <strong>Add</strong>, and enter the <strong>Client Proxy VM's Local LAN IP</strong> (<code>192.168.10.50</code>).</li>
           </ul>
         </li>
@@ -680,16 +680,16 @@ sudo systemctl status zabbix-proxy</code></pre>
         <li>Navigate to <strong>Data collection</strong> ➔ <strong>Hosts</strong> ➔ <strong>Create host</strong>.</li>
         <li>Set the following values:
           <ul>
-            <li><strong>Host name:</strong> <code>ISK_Windows_Server</code></li>
+            <li><strong>Host name:</strong> <code>SoluteLab_Windows_Server</code></li>
             <li><strong>Templates:</strong> Link <code>Windows by SNMP</code></li>
-            <li><strong>Host Groups:</strong> Select <code>ISK</code></li>
-            <li><strong>Monitored by proxy:</strong> Select <code>ISK</code></li>
+            <li><strong>Host Groups:</strong> Select <code>SoluteLab</code></li>
+            <li><strong>Monitored by proxy:</strong> Select <code>SoluteLab</code></li>
             <li><strong>Interfaces:</strong> Click <strong>Add</strong> ➔ Select <strong><code>SNMP</code></strong> ➔ Enter Local IP <code>192.168.10.100</code> and Port <code>161</code>.</li>
           </ul>
         </li>
         <li>Navigate to <strong><code>Macros</code></strong> tab ➔ Click <strong>Inherited and host macros</strong>:
           <ul>
-            <li>Add macro: <code>{$SNMP_COMMUNITY}</code> ➔ Value: <code>isk_noc_public</code>.</li>
+            <li>Add macro: <code>{$SNMP_COMMUNITY}</code> ➔ Value: <code>solutelab_noc_public</code>.</li>
           </ul>
         </li>
         <li>Click <strong>Add</strong>.</li>

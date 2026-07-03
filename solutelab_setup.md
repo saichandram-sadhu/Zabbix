@@ -1,6 +1,6 @@
-# 🌐 ISK Client Setup & Monitoring Deployment Guide
+# 🌐 SoluteLab Client Setup & Monitoring Deployment Guide
 
-This guide details the end-to-end, production-grade configuration required to monitor client **`ISK`**'s infrastructure from the central **TechMonarch NOC Server** using **Headscale VPN** and an **agentless Zabbix Proxy** deployment.
+This guide details the end-to-end, production-grade configuration required to monitor client **`SoluteLab`**'s infrastructure from the central **TechMonarch NOC Server** using **Headscale VPN** and an **agentless Zabbix Proxy** deployment.
 
 ---
 
@@ -8,7 +8,7 @@ This guide details the end-to-end, production-grade configuration required to mo
 
 Below is the visual network topology showing how data flows securely from the client's internal Windows Server to the NOC dashboard via the encrypted peer-to-peer WireGuard tunnel.
 
-![ISK Network Topology](assets/isk_network_architecture.svg)
+![SoluteLab Network Topology](assets/solutelab_network_architecture.svg)
 
 ---
 
@@ -52,7 +52,7 @@ Provide a local VM in the client's LAN with the following specifications:
 #### **Step 1: Generate Reusable Pre-Auth Key on TechMonarch NOC Server**
 Before setting up the client side, run this command on your **NOC Server** to generate an automatic registration token:
 ```bash
-docker exec headscale headscale preauthkeys create -u 1 --reusable -e 30d
+docker exec headscale headscale preauthkeys create -u 1 --reusable -e 180d
 ```
 *Copy the generated key (looks like `hskey-auth--L-GpV...`).*
 
@@ -102,7 +102,7 @@ sudo nano /etc/zabbix/zabbix_proxy.conf
 Update the following parameters inside the configuration file:
 ```ini
 Server=100.64.0.2                       # Zabbix NOC Server VPN IP
-Hostname=ISK                            # Unique proxy ID matching Zabbix Web UI
+Hostname=SoluteLab                      # Unique proxy ID matching Zabbix Web UI
 DBName=/var/lib/zabbix/zabbix_proxy.db   # File path for SQLite3 DB
 ProxyMode=0                             # 0 = Active mode (Proxy pushes data to Server)
 ```
@@ -128,7 +128,7 @@ To monitor the Windows Server (e.g., Domain Controller / Database Server at `192
 5. Find **SNMP Service**, right-click, and select **Properties**.
 6. Navigate to the **`Security`** tab:
    *   Under **Accepted community names**, click **Add**.
-   *   Set Community Name: **`isk_noc_public`** and Community Rights: **`READ ONLY`**.
+   *   Set Community Name: **`solutelab_noc_public`** and Community Rights: **`READ ONLY`**.
    *   Select **`Accept SNMP packets from these hosts`**, click **Add**, and enter the **Client Proxy VM's Local LAN IP** (`192.168.10.50`).
 7. Click **Apply** and restart the SNMP Service.
 
@@ -137,13 +137,13 @@ To monitor the Windows Server (e.g., Domain Controller / Database Server at `192
 ### **B. Register the Host in Zabbix Web UI**
 1. Navigate to **Data collection** ➔ **Hosts** ➔ **Create host**.
 2. Set configuration values:
-   *   **Host name**: `ISK_Windows_Server`
+   *   **Host name**: `SoluteLab_Windows_Server`
    *   **Templates**: Link `Windows by SNMP`
-   *   **Host Groups**: Select `ISK`
-   *   **Monitored by proxy**: Select `ISK`
+   *   **Host Groups**: Select `SoluteLab`
+   *   **Monitored by proxy**: Select `SoluteLab`
    *   **Interfaces**: Click **Add** ➔ Select **`SNMP`** ➔ Enter Local IP `192.168.10.100` and Port `161`.
 3. Navigate to **`Macros`** tab ➔ Click **Inherited and host macros**:
-   *   Add macro: `{$SNMP_COMMUNITY}` ➔ Value: `isk_noc_public`.
+   *   Add macro: `{$SNMP_COMMUNITY}` ➔ Value: `solutelab_noc_public`.
 4. Click **Add**.
 
 Within 60 seconds, Zabbix Proxy will poll the server on port 161 and send metrics securely to the NOC server!
