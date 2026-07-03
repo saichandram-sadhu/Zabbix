@@ -1,6 +1,6 @@
 # 🌐 ISK Client Setup & Monitoring Deployment Guide
 
-This guide details the end-to-end, production-grade configuration required to monitor client **`ISK`**'s infrastructure from the central **Hyderabad NOC Server** using **Headscale VPN** and an **agentless Zabbix Proxy** deployment.
+This guide details the end-to-end, production-grade configuration required to monitor client **`ISK`**'s infrastructure from the central **TechMonarch NOC Server** using **Headscale VPN** and an **agentless Zabbix Proxy** deployment.
 
 ---
 
@@ -12,7 +12,7 @@ Below is the visual network topology showing how data flows securely from the cl
 
 ---
 
-## 🔌 2. Central ISP Router Configuration (Hyderabad NOC Site)
+## 🔌 2. Central ISP Router Configuration (TechMonarch NOC Site)
 
 Since the central site uses a standard ISP router instead of a dedicated hardware firewall, we must configure **Port Forwarding (NAT / Virtual Server)** to expose Headscale registration endpoints safely.
 
