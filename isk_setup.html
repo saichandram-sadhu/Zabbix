@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISK Client Setup & Monitoring Deployment Guide</title>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #0B0F19;
+      --card-bg: #111827;
+      --border-color: #1F2937;
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --primary: #14B8A6;
+      --secondary: #3B82F6;
+      --accent: #F59E0B;
+      --code-bg: #1F2937;
+      --code-text: #10B981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: 280px;
+      background-color: #080C14;
+      border-right: 1px solid var(--border-color);
+      padding: 40px 24px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .brand-logo {
+      width: 12px;
+      height: 12px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--text-main);
+    }
+
+    .nav-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .nav-item a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: block;
+      padding: 4px 0;
+    }
+
+    .nav-item a:hover {
+      color: var(--primary);
+      padding-left: 4px;
+    }
+
+    /* Main Container */
+    main {
+      margin-left: 280px;
+      flex: 1;
+      padding: 60px 80px;
+      max-width: 1200px;
+    }
+
+    header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    section {
+      margin-bottom: 60px;
+      scroll-margin-top: 40px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 20px 0 12px 0;
+      color: var(--text-main);
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    ul, ol {
+      margin-bottom: 16px;
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* SVG Wrapper */
+    .svg-container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Table Design */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    td {
+      color: var(--text-muted);
+    }
+
+    tr:hover td {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.01);
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      border-left: 4px solid;
+    }
+
+    .alert-important {
+      background-color: rgba(59, 130, 246, 0.05);
+      border-color: var(--secondary);
+      color: #93C5FD;
+    }
+
+    .alert-important strong {
+      color: #3B82F6;
+    }
+
+    .alert-success {
+      background-color: rgba(16, 185, 129, 0.05);
+      border-color: #10B981;
+      color: #A7F3D0;
+    }
+
+    .alert-success strong {
+      color: #10B981;
+    }
+
+    /* Code Blocks */
+    .code-block-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .code-header {
+      background-color: #0D1117;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .code-lang {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .copy-btn {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    pre {
+      background-color: #090D16;
+      padding: 16px 20px;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: #34D399;
+    }
+
+    .inline-code {
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      background-color: var(--code-bg);
+      color: #F43F5E;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      aside {
+        display: none;
+      }
+      main {
+        margin-left: 0;
+        padding: 40px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside>
+    <div class="brand">
+      <div class="brand-logo"></div>
+      <div class="brand-name">TECHMONARCH NOC</div>
+    </div>
+    
+    <div class="nav-title">Sections</div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="#topology">🗺️ 1. Network Topology</a></li>
+      <li class="nav-item"><a href="#router">🔌 2. Router Port Forward</a></li>
+      <li class="nav-item"><a href="#proxy">📡 3. Zabbix Proxy Setup</a></li>
+      <li class="nav-item"><a href="#windows">💻 4. Windows SNMP Setup</a></li>
+      <li class="nav-item"><a href="#zabbix-add">🖥️ 5. Zabbix Host Register</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main>
+    <header>
+      <h1>🌐 ISK Client Setup & Monitoring Deployment Guide</h1>
+      <div class="subtitle">Secure Headscale VPN + Agentless SNMP Zabbix Proxy Setup</div>
+    </header>
+
+    <!-- Topology Section -->
+    <section id="topology">
+      <h2>🗺️ 1. Network Topology & Architecture</h2>
+      <p>This interactive diagram illustrates the secure data flow from the client's internal Windows Server to the NOC dashboard via the encrypted Headscale WireGuard tunnel.</p>
+      
+      <div class="svg-container">
+        <!-- SVG Code Embedded Inline for Native Animations -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" width="100%" height="100%">
+          <style>
+            @keyframes flow-right {
+              0% { stroke-dashoffset: 30; }
+              100% { stroke-dashoffset: 0; }
+            }
+            @keyframes flow-down {
+              0% { stroke-dashoffset: 20; }
+              100% { stroke-dashoffset: 0; }
+            }
+            @keyframes dot-move-right {
+              0% { transform: translateX(0); opacity: 0; }
+              10% { opacity: 1; }
+              90% { opacity: 1; }
+              100% { transform: translateX(280px); opacity: 0; }
+            }
+            @keyframes dot-move-up {
+              0% { transform: translateY(0); opacity: 0; }
+              10% { opacity: 1; }
+              90% { opacity: 1; }
+              100% { transform: translateY(-120px); opacity: 0; }
+            }
+            @keyframes blink-green {
+              0%, 100% { fill: #22C55E; }
+              50% { fill: #166534; }
+            }
+            .flow-line-h { stroke-dasharray: 8 6; animation: flow-right 1s linear infinite; }
+            .flow-line-v { stroke-dasharray: 6 4; animation: flow-down 0.8s linear infinite; }
+            .led { animation: blink-green 2s ease-in-out infinite; }
+            .packet-h { animation: dot-move-right 3s ease-in-out infinite; }
+            .packet-v { animation: dot-move-up 2s ease-in-out infinite; }
+          </style>
+
+          <!-- Background -->
+          <rect width="1100" height="700" rx="12" fill="#0F172A" />
+
+          <!-- Title -->
+          <text x="550" y="42" text-anchor="middle" fill="#F1F5F9" font-family="system-ui, sans-serif" font-size="24" font-weight="800">ISK Client — Network Monitoring Architecture</text>
+          <text x="550" y="68" text-anchor="middle" fill="#64748B" font-family="system-ui, sans-serif" font-size="14">Headscale VPN Tunnel + Agentless SNMP Monitoring via Zabbix Proxy</text>
+
+          <!-- NOC -->
+          <rect x="40" y="95" width="440" height="560" rx="16" fill="#1E293B" stroke="#334155" stroke-width="1.5" />
+          <rect x="40" y="95" width="440" height="40" rx="16" fill="#0D9488" />
+          <rect x="40" y="120" width="440" height="15" fill="#0D9488" />
+          <text x="260" y="122" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700">TECHMONARCH NOC (Your Office)</text>
+
+          <!-- Zabbix Server Card -->
+          <rect x="80" y="160" width="360" height="130" rx="12" fill="#134E4A" stroke="#2DD4BF" stroke-width="1.5" />
+          <circle cx="110" cy="185" r="6" class="led" />
+          <text x="122" y="190" fill="#5EEAD4" font-family="system-ui, sans-serif" font-size="11" font-weight="700">ONLINE</text>
+          <text x="100" y="215" fill="#F0FDFA" font-family="system-ui, sans-serif" font-size="16" font-weight="800">Zabbix Server (Central NOC)</text>
+          <text x="100" y="240" fill="#99F6E4" font-family="system-ui, sans-serif" font-size="13">Public IP: 122.170.96.200</text>
+          <text x="100" y="260" fill="#99F6E4" font-family="system-ui, sans-serif" font-size="13">VPN IP: 100.64.0.2</text>
+          <text x="100" y="280" fill="#5EEAD4" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Listens on Port 10051 (VPN Only)</text>
+
+          <!-- Headscale VPN Controller Card -->
+          <rect x="80" y="310" width="360" height="100" rx="12" fill="#1E3A5F" stroke="#38BDF8" stroke-width="1.5" />
+          <circle cx="110" cy="335" r="6" class="led" />
+          <text x="122" y="340" fill="#7DD3FC" font-family="system-ui, sans-serif" font-size="11" font-weight="700">ONLINE</text>
+          <text x="100" y="365" fill="#E0F2FE" font-family="system-ui, sans-serif" font-size="16" font-weight="800">Headscale VPN Controller</text>
+          <text x="100" y="390" fill="#BAE6FD" font-family="system-ui, sans-serif" font-size="13">Port 8080 (Client Registration)</text>
+
+          <!-- Router Card -->
+          <rect x="80" y="430" width="360" height="110" rx="12" fill="#1C1917" stroke="#78716C" stroke-width="1.5" />
+          <text x="100" y="460" fill="#E7E5E4" font-family="system-ui, sans-serif" font-size="16" font-weight="800">ISP Router (NAT Gateway)</text>
+          <text x="100" y="485" fill="#A8A29E" font-family="system-ui, sans-serif" font-size="12">Port Forward Rules:</text>
+          <rect x="100" y="495" width="150" height="22" rx="6" fill="#292524" />
+          <text x="175" y="511" text-anchor="middle" fill="#38BDF8" font-family="system-ui, sans-serif" font-size="11" font-weight="700">TCP 8080 ➔ 192.168.1.178</text>
+          <rect x="260" y="495" width="160" height="22" rx="6" fill="#292524" />
+          <text x="340" y="511" text-anchor="middle" fill="#34D399" font-family="system-ui, sans-serif" font-size="11" font-weight="700">UDP 41641 ➔ 192.168.1.178</text>
+
+          <!-- Connectors NOC -->
+          <line x1="260" y1="290" x2="260" y2="310" stroke="#2DD4BF" stroke-width="2" />
+          <line x1="260" y1="410" x2="260" y2="430" stroke="#78716C" stroke-width="2" />
+
+          <!-- CLIENT -->
+          <rect x="620" y="95" width="440" height="560" rx="16" fill="#1E293B" stroke="#334155" stroke-width="1.5" />
+          <rect x="620" y="95" width="440" height="40" rx="16" fill="#7C3AED" />
+          <rect x="620" y="120" width="440" height="15" fill="#7C3AED" />
+          <text x="840" y="122" text-anchor="middle" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700">ISK CLIENT OFFICE (Remote Site)</text>
+
+          <!-- Proxy VM Card -->
+          <rect x="660" y="160" width="360" height="150" rx="12" fill="#2E1065" stroke="#A78BFA" stroke-width="1.5" />
+          <circle cx="690" cy="185" r="6" class="led" />
+          <text x="702" y="190" fill="#C4B5FD" font-family="system-ui, sans-serif" font-size="11" font-weight="700">ONLINE</text>
+          <text x="680" y="215" fill="#F5F3FF" font-family="system-ui, sans-serif" font-size="16" font-weight="800">Zabbix Proxy VM (Active Mode)</text>
+          <text x="680" y="240" fill="#DDD6FE" font-family="system-ui, sans-serif" font-size="13">OS: Ubuntu 22.04 LTS</text>
+          <text x="680" y="260" fill="#DDD6FE" font-family="system-ui, sans-serif" font-size="13">Local IP: 192.168.10.50</text>
+          <text x="680" y="280" fill="#DDD6FE" font-family="system-ui, sans-serif" font-size="13">VPN IP: 100.64.0.3</text>
+          <text x="680" y="300" fill="#A78BFA" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Hardware: 2 vCPU | 2GB RAM | 20GB SSD</text>
+
+          <!-- Windows Server Card -->
+          <rect x="660" y="380" width="360" height="130" rx="12" fill="#451A03" stroke="#F59E0B" stroke-width="1.5" />
+          <text x="680" y="410" fill="#FEF3C7" font-family="system-ui, sans-serif" font-size="16" font-weight="800">Windows Server (Agentless)</text>
+          <text x="680" y="435" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Local IP: 192.168.10.100</text>
+          <text x="680" y="455" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Protocol: SNMP v2c (Port 161)</text>
+          <text x="680" y="475" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="13">Community: isk_noc_public</text>
+          <rect x="680" y="485" width="180" height="18" rx="6" fill="#78350F" />
+          <text x="770" y="498" text-anchor="middle" fill="#FBBF24" font-family="system-ui, sans-serif" font-size="10" font-weight="800">NO AGENT INSTALLED</text>
+
+          <!-- Connectors client side -->
+          <line x1="840" y1="310" x2="840" y2="380" stroke="#F59E0B" stroke-width="3" class="flow-line-v" />
+          <rect x="855" y="332" width="105" height="24" rx="6" fill="#451A03" stroke="#F59E0B" stroke-width="1" />
+          <text x="907" y="349" text-anchor="middle" fill="#FBBF24" font-family="system-ui, sans-serif" font-size="10" font-weight="700">SNMP Polling</text>
+          <circle cx="840" cy="375" r="5" fill="#FBBF24" class="packet-v" />
+
+          <!-- VPN Tunnel Line -->
+          <line x1="440" y1="220" x2="660" y2="220" stroke="#3B82F6" stroke-width="4" class="flow-line-h" />
+          <rect x="470" y="195" width="160" height="50" rx="10" fill="#1E3A5F" stroke="#3B82F6" stroke-width="1.5" />
+          <text x="550" y="216" text-anchor="middle" fill="#93C5FD" font-family="system-ui, sans-serif" font-size="11" font-weight="800">WireGuard Tunnel</text>
+          <text x="550" y="236" text-anchor="middle" fill="#22C55E" font-family="system-ui, sans-serif" font-size="10" font-weight="700">AES-256 Encrypted</text>
+          <circle cx="445" cy="220" r="6" fill="#60A5FA" class="packet-h" />
+
+          <!-- Legend & Flows -->
+          <g transform="translate(660, 535)">
+            <circle cx="15" cy="15" r="15" fill="#F59E0B" />
+            <text x="15" y="20" text-anchor="middle" fill="#0F172A" font-family="system-ui, sans-serif" font-size="14" font-weight="900">1</text>
+            <text x="38" y="20" fill="#FDE68A" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Proxy polls Windows via SNMP (LAN)</text>
+          </g>
+          <g transform="translate(660, 565)">
+            <circle cx="15" cy="15" r="15" fill="#8B5CF6" />
+            <text x="15" y="20" text-anchor="middle" fill="#0F172A" font-family="system-ui, sans-serif" font-size="14" font-weight="900">2</text>
+            <text x="38" y="20" fill="#DDD6FE" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Proxy relays data via VPN tunnel</text>
+          </g>
+          <g transform="translate(660, 595)">
+            <circle cx="15" cy="15" r="15" fill="#14B8A6" />
+            <text x="15" y="20" text-anchor="middle" fill="#0F172A" font-family="system-ui, sans-serif" font-size="14" font-weight="900">3</text>
+            <text x="38" y="20" fill="#99F6E4" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Zabbix Server displays live dashboard</text>
+          </g>
+
+          <g transform="translate(80, 565)">
+            <rect x="0" y="0" width="360" height="60" rx="10" fill="#042F2E" stroke="#14B8A6" stroke-width="1" />
+            <text x="180" y="22" text-anchor="middle" fill="#5EEAD4" font-family="system-ui, sans-serif" font-size="12" font-weight="800">SECURITY NOTE</text>
+            <text x="180" y="42" text-anchor="middle" fill="#99F6E4" font-family="system-ui, sans-serif" font-size="11">Port 10051 is CLOSED to public internet.</text>
+            <text x="180" y="56" text-anchor="middle" fill="#99F6E4" font-family="system-ui, sans-serif" font-size="11">Only VPN peers (100.64.0.0/10) can reach it.</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Router Section -->
+    <section id="router">
+      <h2>🔌 2. Central ISP Router Configuration (TechMonarch NOC Site)</h2>
+      <p>Since the central site uses a standard ISP router instead of a dedicated hardware firewall, you must configure <strong>Port Forwarding (NAT / Virtual Server)</strong> to expose Headscale registration endpoints safely.</p>
+      
+      <h3>Step 1: Access Router Gateway</h3>
+      <ol>
+        <li>Open a browser on the local NOC network and navigate to the router gateway IP (typically <code>http://192.168.1.1</code>).</li>
+        <li>Log in using the administrative credentials.</li>
+      </ol>
+
+      <h3>Step 2: Add Port Forwarding (NAT) Rules</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Rule Name</th>
+            <th>External Port</th>
+            <th>Internal Port</th>
+            <th>Protocol</th>
+            <th>Internal Target IP (NOC VM)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Headscale Web Control</strong></td>
+            <td><code>8080</code></td>
+            <td><code>8080</code></td>
+            <td><strong>TCP</strong></td>
+            <td><code>192.168.1.178</code></td>
+          </tr>
+          <tr>
+            <td><strong>Tailscale WireGuard P2P</strong></td>
+            <td><code>41641</code></td>
+            <td><code>41641</code></td>
+            <td><strong>UDP</strong></td>
+            <td><code>192.168.1.178</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-important">
+        <strong>⚠️ IMPORTANT:</strong> Do <strong>NOT</strong> port forward <code>10051 (TCP)</code> for Zabbix Server or <code>5432</code> for PostgreSQL to the public internet. These ports must remain strictly private, reachable only within the secure Headscale VPN tunnel network.
+      </div>
+    </section>
+
+    <!-- Proxy Section -->
+    <section id="proxy">
+      <h2>📡 3. Zabbix Proxy VM Sizing & Installation (Client Office Site)</h2>
+      <p>The local Zabbix Proxy acts as an on-premise monitoring gateway. It collects metrics from the local network and relays them securely to the NOC.</p>
+      
+      <h3>A. Hardware Virtual Machine (VM) Sizing</h3>
+      <ul>
+        <li><strong>Operating System:</strong> Ubuntu Server 22.04 LTS (x86_64)</li>
+        <li><strong>Processor (vCPU):</strong> 2 cores recommended</li>
+        <li><strong>Memory (RAM):</strong> 2 GB recommended</li>
+        <li><strong>Storage (SSD):</strong> 20 GB SSD</li>
+        <li><strong>Network:</strong> Dedicated local IP address (e.g., <code>192.168.10.50</code>)</li>
+      </ul>
+
+      <h3>B. Step-by-Step CLI Installation Commands</h3>
+
+      <h3>Step 1: Generate Reusable Pre-Auth Key on TechMonarch NOC Server</h3>
+      <p>Run this command on your <strong>NOC Server</strong> to generate an automatic registration token:</p>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (NOC Server)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>docker exec headscale headscale preauthkeys create -u 1 --reusable -e 180d</code></pre>
+      </div>
+
+      <h3>Step 2: Connect Tailscale on Client's Proxy VM</h3>
+      <p>Log in to the client's Proxy VM via SSH and run:</p>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (Client Proxy VM)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># 1. Install Tailscale client
+curl -fsSL https://tailscale.com/install.sh | sh
+
+# 2. Authenticate directly using the generated pre-auth key
+sudo tailscale up --login-server http://122.170.96.200:8080 --accept-dns=false --authkey hskey-auth-Zpa3amo0ooUR-mXfSLN6xrHPlTSqF1_TK3qjomb1nxNGihQZKxxkEzeCVqSClgasCFOvFTAnKLsP5
+
+# 3. Verify connection and check the assigned VPN IP
+tailscale ip -4</code></pre>
+      </div>
+
+      <h3>Step 3: Add Zabbix Official Repository (Version 7.0 LTS)</h3>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (Client Proxy VM)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># 1. Download repository config package
+wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-1+ubuntu22.04_all.deb
+
+# 2. Install repository config
+sudo dpkg -i zabbix-release_7.0-1+ubuntu22.04_all.deb
+
+# 3. Update repository packages cache list
+sudo apt update</code></pre>
+      </div>
+
+      <h3>Step 4: Install Zabbix Proxy with SQLite3 Database</h3>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (Client Proxy VM)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>sudo apt install zabbix-proxy-sqlite3 -y</code></pre>
+      </div>
+
+      <h3>Step 5: Initialize the SQLite3 Database File</h3>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (Client Proxy VM)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># Create the directory for database
+sudo mkdir -p /var/lib/zabbix
+
+# Assign correct owner permissions to Zabbix daemon user
+sudo chown -R zabbix:zabbix /var/lib/zabbix</code></pre>
+      </div>
+
+      <h3>Step 6: Edit the Proxy Configuration file</h3>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (Client Proxy VM)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>sudo nano /etc/zabbix/zabbix_proxy.conf</code></pre>
+      </div>
+      <p>Update the following parameters inside the configuration file:</p>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">zabbix_proxy.conf</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>Server=100.64.0.2                       # Zabbix NOC Server VPN IP
+Hostname=ISK                            # Unique proxy ID matching Zabbix Web UI
+DBName=/var/lib/zabbix/zabbix_proxy.db   # File path for SQLite3 DB
+ProxyMode=0                             # 0 = Active mode (Proxy pushes data to Server)</code></pre>
+      </div>
+
+      <h3>Step 7: Start and Enable the Proxy Daemon</h3>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">Bash (Client Proxy VM)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>sudo systemctl enable zabbix-proxy
+sudo systemctl start zabbix-proxy
+sudo systemctl status zabbix-proxy</code></pre>
+      </div>
+    </section>
+
+    <!-- Windows Section -->
+    <section id="windows">
+      <h2>💻 4. Agentless Windows Server Setup (SNMP Monitoring)</h2>
+      <p>To monitor the Windows Server (e.g., Local LAN IP: <code>192.168.10.100</code>) without installing agent software:</p>
+      
+      <h3>A. Enable and Configure SNMP on the Windows Server</h3>
+      <ol>
+        <li>Log in to the Windows Server as an Administrator.</li>
+        <li>Open <strong>Server Manager</strong> ➔ Click <strong>Add Roles and Features</strong>.</li>
+        <li>Under the <strong>Features</strong> list, select <strong><code>SNMP Service</code></strong> and install it.</li>
+        <li>Open the Windows <strong>Services</strong> console (<code>services.msc</code>).</li>
+        <li>Find <strong>SNMP Service</strong>, right-click, and select <strong>Properties</strong>.</li>
+        <li>Navigate to the <strong><code>Security</code></strong> tab:
+          <ul>
+            <li>Under <strong>Accepted community names</strong>, click <strong>Add</strong>.</li>
+            <li>Set Community Name: <span class="inline-code">isk_noc_public</span> and Community Rights: <strong><code>READ ONLY</code></strong>.</li>
+            <li>Select <strong><code>Accept SNMP packets from these hosts</code></strong>, click <strong>Add</strong>, and enter the <strong>Client Proxy VM's Local LAN IP</strong> (<code>192.168.10.50</code>).</li>
+          </ul>
+        </li>
+        <li>Click <strong>Apply</strong> and restart the SNMP Service.</li>
+      </ol>
+    </section>
+
+    <!-- Zabbix Add Section -->
+    <section id="zabbix-add">
+      <h2>🖥️ 5. Register the Host in Zabbix Web UI</h2>
+      <p>Finally, configure the host on the central Zabbix Server frontend so it starts receiving data:</p>
+      <ol>
+        <li>Navigate to <strong>Data collection</strong> ➔ <strong>Hosts</strong> ➔ <strong>Create host</strong>.</li>
+        <li>Set the following values:
+          <ul>
+            <li><strong>Host name:</strong> <code>ISK_Windows_Server</code></li>
+            <li><strong>Templates:</strong> Link <code>Windows by SNMP</code></li>
+            <li><strong>Host Groups:</strong> Select <code>ISK</code></li>
+            <li><strong>Monitored by proxy:</strong> Select <code>ISK</code></li>
+            <li><strong>Interfaces:</strong> Click <strong>Add</strong> ➔ Select <strong><code>SNMP</code></strong> ➔ Enter Local IP <code>192.168.10.100</code> and Port <code>161</code>.</li>
+          </ul>
+        </li>
+        <li>Navigate to <strong><code>Macros</code></strong> tab ➔ Click <strong>Inherited and host macros</strong>:
+          <ul>
+            <li>Add macro: <code>{$SNMP_COMMUNITY}</code> ➔ Value: <code>isk_noc_public</code>.</li>
+          </ul>
+        </li>
+        <li>Click <strong>Add</strong>.</li>
+      </ol>
+
+      <div class="alert alert-success">
+        <strong>⚡ Success:</strong> Within 60 seconds of registration, the Zabbix Proxy will poll the target Windows Server on port 161 and send metrics securely back to the NOC server dashboard!
+      </div>
+    </section>
+  </main>
+
+  <!-- JavaScript to handle Copy Code block -->
+  <script>
+    function copyCode(button) {
+      const codeBlock = button.parentElement.nextElementSibling.querySelector('code');
+      const textToCopy = codeBlock.textContent;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.style.backgroundColor = '#10B981';
+        button.style.color = '#FFFFFF';
+        button.style.borderColor = '#10B981';
+
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.backgroundColor = 'transparent';
+          button.style.color = 'var(--text-muted)';
+          button.style.borderColor = 'var(--border-color)';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  </script>
+</body>
+</html>
