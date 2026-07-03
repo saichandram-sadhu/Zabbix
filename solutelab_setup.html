@@ -723,31 +723,92 @@ Restart-Service -Name "SNMP"</code></pre>
       </div>
     </section>
 
-    <!-- Zabbix Add Section -->
-    <section id="zabbix-add">
-      <h2>🖥️ 5. Register the Host in Zabbix Web UI</h2>
-      <p>Finally, configure the host on the central Zabbix Server frontend so it starts receiving data:</p>
+    <!-- Zabbix Agent Section -->
+    <section id="zabbix-agent">
+      <h2>💻 5. Alternative Windows Monitoring Setup (Zabbix Agent)</h2>
+      <p>If you prefer installing the official <strong>Zabbix Agent</strong> instead of using SNMP (e.g., to capture custom event logs, script executions, or native OS performance metrics):</p>
+      
+      <h3>A. Download the MSI Installer</h3>
       <ol>
-        <li>Navigate to <strong>Data collection</strong> ➔ <strong>Hosts</strong> ➔ <strong>Create host</strong>.</li>
-        <li>Set the following values:
-          <ul>
-            <li><strong>Host name:</strong> <code>SoluteLab_Windows_Server</code></li>
-            <li><strong>Templates:</strong> Link <code>Windows by SNMP</code></li>
-            <li><strong>Host Groups:</strong> Select <code>SoluteLab</code></li>
-            <li><strong>Monitored by proxy:</strong> Select <code>SoluteLab</code></li>
-            <li><strong>Interfaces:</strong> Click <strong>Add</strong> ➔ Select <strong><code>SNMP</code></strong> ➔ Enter Local IP <code>192.168.10.100</code> and Port <code>161</code>.</li>
-          </ul>
+        <li>Download the official Zabbix Agent MSI installer:
+          <p><a href="https://www.zabbix.com/download_agents" target="_blank" style="color: var(--msp-primary); text-decoration: underline;">👉 Zabbix Agent Downloads Page</a></p>
         </li>
-        <li>Navigate to <strong><code>Macros</code></strong> tab ➔ Click <strong>Inherited and host macros</strong>:
-          <ul>
-            <li>Add macro: <code>{$SNMP_COMMUNITY}</code> ➔ Value: <code>solutelab_noc_public</code>.</li>
-          </ul>
-        </li>
-        <li>Click <strong>Add</strong>.</li>
+        <li>Select your Zabbix Version (e.g., <code>7.0 LTS</code>), OS: <code>Windows</code>, Architecture: <code>amd64</code>, Packaging: <code>MSI</code>.</li>
       </ol>
 
+      <h3>B. Install and Configure the MSI Package</h3>
+      <p>Double-click the downloaded MSI file to launch the installation wizard. When you reach the <strong>Zabbix Agent Configuration</strong> screen, configure the following parameters:</p>
+      
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="assets/win-agent-2.png" alt="Zabbix Agent Configuration Screen" style="border-radius: 8px; border: 1px solid var(--border-color); max-width: 100%; height: auto;">
+      </div>
+
+      <ol>
+        <li><strong>Host name:</strong> Enter a unique name for this machine (e.g., <span class="inline-code">SoluteLab_Windows_Client</span>).
+          <br><em style="color: var(--text-muted); font-size: 13px;">*Warning: This must exactly match the "Host name" you configure later in the Zabbix Web UI (case-sensitive).*</em>
+        </li>
+        <li><strong>Zabbix server IP/DNS:</strong> Enter the <strong>Local LAN IP of the Zabbix Proxy VM</strong> (e.g., <span class="inline-code">192.168.10.50</span>).
+          <br><em style="color: var(--text-muted); font-size: 13px;">*Why? The agent is in the same local subnet as the Proxy. The Proxy is the one connecting to it.*</em>
+        </li>
+        <li><strong>Agent listen port:</strong> Keep the default <strong><code>10050</code></strong>.</li>
+        <li><strong>Server or Proxy for active checks:</strong> Enter the <strong>Local LAN IP of the Zabbix Proxy VM</strong> (<span class="inline-code">192.168.10.50</span>).</li>
+        <li>Click <strong>Next</strong> and finish the installation wizard.</li>
+      </ol>
+
+      <h3>C. Allow Port in Windows Firewall</h3>
+      <p>The installer will automatically register the service, but you must ensure that incoming TCP connections on port <code>10050</code> are allowed through the Windows Defender Firewall:</p>
+      <ol>
+        <li>Open <strong>Control Panel</strong> ➔ <strong>System and Security</strong> ➔ <strong>Windows Defender Firewall</strong> ➔ <strong>Allow an app or feature through Windows Defender Firewall</strong>.</li>
+        <li>Make sure the <strong>Zabbix Agent</strong> executable is checked for your active network profile (Private/Public).</li>
+      </ol>
+    </section>
+
+    <!-- Zabbix Add Section -->
+    <section id="zabbix-add">
+      <h2>🖥️ 6. Register the Host in Zabbix Web UI</h2>
+      <p>Finally, add the Windows client host to the central Zabbix Server frontend so it starts syncing metrics:</p>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <h4 style="margin-top: 0; color: var(--msp-primary);">Option A: If using SNMP (Section 4)</h4>
+        <ol style="margin-bottom: 0;">
+          <li>Navigate to <strong>Data collection</strong> ➔ <strong>Hosts</strong> ➔ <strong>Create host</strong>.</li>
+          <li>Set the following values:
+            <ul>
+              <li><strong>Host name:</strong> <code>SoluteLab_Windows_Server</code> (must match the client host)</li>
+              <li><strong>Templates:</strong> Link <code>Windows by SNMP</code></li>
+              <li><strong>Host Groups:</strong> Select <code>SoluteLab</code></li>
+              <li><strong>Monitored by proxy:</strong> Select <code>SoluteLab</code></li>
+              <li><strong>Interfaces:</strong> Click <strong>Add</strong> ➔ Select <strong><code>SNMP</code></strong> ➔ Enter Local IP <code>192.168.10.100</code> and Port <code>161</code>.</li>
+            </ul>
+          </li>
+          <li>Navigate to <strong><code>Macros</code></strong> tab ➔ Click <strong>Inherited and host macros</strong>:
+            <ul>
+              <li>Add macro: <code>{$SNMP_COMMUNITY}</code> ➔ Value: <code>solutelab_noc_public</code>.</li>
+            </ul>
+          </li>
+          <li>Click <strong>Add</strong>.</li>
+        </ol>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <h4 style="margin-top: 0; color: var(--msp-primary);">Option B: If using Zabbix Agent (Section 5)</h4>
+        <ol style="margin-bottom: 0;">
+          <li>Navigate to <strong>Data collection</strong> ➔ <strong>Hosts</strong> ➔ <strong>Create host</strong>.</li>
+          <li>Set the following values:
+            <ul>
+              <li><strong>Host name:</strong> <code>SoluteLab_Windows_Client</code> <em style="color: var(--text-muted);">(must match the name entered in step 5B)</em></li>
+              <li><strong>Templates:</strong> Link <code>Windows by Zabbix agent</code> (or <code>Windows by Zabbix agent active</code>)</li>
+              <li><strong>Host Groups:</strong> Select <code>SoluteLab</code></li>
+              <li><strong>Monitored by proxy:</strong> Select <code>SoluteLab</code></li>
+              <li><strong>Interfaces:</strong> Click <strong>Add</strong> ➔ Select <strong><code>Agent</code></strong> ➔ Enter Local IP <code>192.168.10.100</code> and Port <code>10050</code>.</li>
+            </ul>
+          </li>
+          <li>Click <strong>Add</strong>.</li>
+        </ol>
+      </div>
+
       <div class="alert alert-success">
-        <strong>⚡ Success:</strong> Within 60 seconds of registration, the Zabbix Proxy will poll the target Windows Server on port 161 and send metrics securely back to the NOC server dashboard!
+        <strong>⚡ Success:</strong> Within 60 seconds of registration, the Zabbix Proxy will poll the target Windows Server on port 161 (SNMP) or 10050 (Agent) and send metrics securely back to the NOC server dashboard!
       </div>
     </section>
   </main>
