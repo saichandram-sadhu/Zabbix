@@ -651,25 +651,76 @@ sudo systemctl status zabbix-proxy</code></pre>
 
     <!-- Windows Section -->
     <section id="windows">
-      <h2>💻 4. Agentless Windows Server Setup (SNMP Monitoring)</h2>
-      <p>To monitor the Windows Server (e.g., Local LAN IP: <code>192.168.10.100</code>) without installing agent software:</p>
+      <h2>💻 4. Agentless Windows Monitoring Setup (SNMP)</h2>
+      <p>To monitor a Windows machine (Windows Server, Windows 10, or Windows 11) without installing any agent software:</p>
       
-      <h3>A. Enable and Configure SNMP on the Windows Server</h3>
+      <h3>A. Enable SNMP on Windows Server</h3>
       <ol>
-        <li>Log in to the Windows Server as an Administrator.</li>
         <li>Open <strong>Server Manager</strong> ➔ Click <strong>Add Roles and Features</strong>.</li>
         <li>Under the <strong>Features</strong> list, select <strong><code>SNMP Service</code></strong> and install it.</li>
+      </ol>
+
+      <h3>B. Enable SNMP on Normal Windows 10 / Windows 11</h3>
+      <p>Select one of the two methods below to enable SNMP on normal client machines:</p>
+      
+      <h4>Method 1: Using PowerShell (Recommended & Easiest)</h4>
+      <ol>
+        <li>Open <strong>PowerShell</strong> as <strong>Administrator</strong>.</li>
+        <li>Run this command to install the SNMP client capability:
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span class="code-lang">PowerShell (Admin)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>Add-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"</code></pre>
+          </div>
+        </li>
+      </ol>
+
+      <h4>Method 2: Using Settings App (GUI)</h4>
+      <ol>
+        <li>Open <strong>Settings</strong> ➔ Navigate to <strong>Apps</strong> ➔ <strong>Optional features</strong> (on Win 11: <strong>System</strong> ➔ <strong>Optional features</strong>).</li>
+        <li>Click <strong>View features</strong> (or <strong>Add a feature</strong>).</li>
+        <li>Search for <strong><code>SNMP</code></strong> or <strong><code>Simple Network Management Protocol</code></strong>.</li>
+        <li>Check the box and click <strong>Install</strong>.</li>
+      </ol>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+      <h3>C. Configure SNMP Service Properties</h3>
+      <ol>
         <li>Open the Windows <strong>Services</strong> console (<code>services.msc</code>).</li>
-        <li>Find <strong>SNMP Service</strong>, right-click, and select <strong>Properties</strong>.</li>
-        <li>Navigate to the <strong><code>Security</code></strong> tab:
+        <li>Scroll down and locate the <strong><code>SNMP Service</code></strong>.</li>
+        <li>Right-click <strong>SNMP Service</strong> and select <strong>Properties</strong>.</li>
+        <li>Go to the <strong><code>Security</code></strong> tab:
           <ul>
             <li>Under <strong>Accepted community names</strong>, click <strong>Add</strong>.</li>
             <li>Set Community Name: <span class="inline-code">solutelab_noc_public</span> and Community Rights: <strong><code>READ ONLY</code></strong>.</li>
-            <li>Select <strong><code>Accept SNMP packets from these hosts</code></strong>, click <strong>Add</strong>, and enter the <strong>Client Proxy VM's Local LAN IP</strong> (<code>192.168.10.50</code>).</li>
+            <li>Select <strong><code>Accept SNMP packets from these hosts</code></strong>, click <strong>Add</strong>, and enter the <strong>Client Proxy VM's Local LAN IP</strong> (e.g. <code>192.168.10.50</code>).</li>
           </ul>
         </li>
-        <li>Click <strong>Apply</strong> and restart the SNMP Service.</li>
+        <li>Click <strong>Apply</strong> and restart the SNMP Service to load changes.</li>
       </ol>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+      <h3>D. Alternative Registry Configuration (If "Security" tab is missing)</h3>
+      <p>On some Windows 10/11 systems, the <strong>Security</strong> tab is missing in <code>services.msc</code>. You can configure it directly via <strong>PowerShell (Administrator)</strong> instead:</p>
+      <div class="code-block-wrapper">
+        <div class="code-header">
+          <span class="code-lang">PowerShell (Admin)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># 1. Set Community Name to solutelab_noc_public (4 = READ-ONLY)
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\ValidCommunities" -Name "solutelab_noc_public" -Value 4 -PropertyType DWord -Force
+
+# 2. Restrict to Proxy VM LAN IP (Replace 192.168.10.50 with actual Proxy IP)
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\PermittedManagers" -Name "1" -Value "127.0.0.1" -PropertyType String -Force
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\PermittedManagers" -Name "2" -Value "192.168.10.50" -PropertyType String -Force
+
+# 3. Restart SNMP service to apply changes
+Restart-Service -Name "SNMP"</code></pre>
+      </div>
     </section>
 
     <!-- Zabbix Add Section -->

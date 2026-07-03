@@ -116,23 +116,61 @@ sudo systemctl status zabbix-proxy
 
 ---
 
-## 💻 4. Agentless Windows Server Setup (SNMP Monitoring)
+## 💻 4. Agentless Windows Monitoring Setup (SNMP)
 
-To monitor the Windows Server (e.g., Domain Controller / Database Server at `192.168.10.100`) without installing agent software:
+To monitor a Windows machine (Windows Server, Windows 10, or Windows 11) without installing any agent software:
 
-### **A. Enable and Configure SNMP on the Windows Server**
-1. Log in to the Windows Server as an Administrator.
-2. Open **Server Manager** ➔ Click **Add Roles and Features**.
-3. Under the **Features** list, select **`SNMP Service`** and install it.
-4. Open the Windows **Services** console (`services.msc`).
-5. Find **SNMP Service**, right-click, and select **Properties**.
-6. Navigate to the **`Security`** tab:
-   *   Under **Accepted community names**, click **Add**.
-   *   Set Community Name: **`solutelab_noc_public`** and Community Rights: **`READ ONLY`**.
-   *   Select **`Accept SNMP packets from these hosts`**, click **Add**, and enter the **Client Proxy VM's Local LAN IP** (`192.168.10.50`).
-7. Click **Apply** and restart the SNMP Service.
+### **A. Enable SNMP on Windows Server**
+1. Open **Server Manager** ➔ Click **Add Roles and Features**.
+2. Under the **Features** list, select **`SNMP Service`** and install it.
+
+### **B. Enable SNMP on Normal Windows 10 / Windows 11**
+Select **one** of the two methods below to enable SNMP on normal client machines:
+
+#### **Method 1: Using PowerShell (Recommended & Easiest)**
+1. Open **PowerShell** as **Administrator**.
+2. Run this command to install the SNMP client capability:
+   ```powershell
+   Add-WindowsCapability -Online -Name "SNMP.Client~~~~0.0.1.0"
+   ```
+
+#### **Method 2: Using Settings App (GUI)**
+1. Open **Settings** ➔ Navigate to **Apps** ➔ **Optional features** (on Win 11: **System** ➔ **Optional features**).
+2. Click **View features** (or **Add a feature**).
+3. Search for **`SNMP`** or **`Simple Network Management Protocol`**.
+4. Check the box and click **Install**.
 
 ---
+
+### **C. Configure SNMP Service Properties**
+1. Open the Windows **Services** console (`services.msc`).
+2. Scroll down and locate the **`SNMP Service`**.
+3. Right-click **SNMP Service** and select **Properties**.
+4. Go to the **`Security`** tab:
+   *   Under **Accepted community names**, click **Add**.
+   *   Set Community Name: **`solutelab_noc_public`** and Rights: **`READ ONLY`**.
+   *   Select **`Accept SNMP packets from these hosts`**, click **Add**, and enter the **Client Proxy VM's Local LAN IP** (e.g., `192.168.10.50`).
+5. Click **Apply**, and restart the SNMP Service to load changes.
+
+---
+
+### **D. Alternative Registry Configuration (If "Security" tab is missing)**
+On some Windows 10/11 systems, the **Security** tab is missing in `services.msc`. You can configure it directly via **PowerShell (Administrator)** instead:
+
+```powershell
+# 1. Set Community Name to solutelab_noc_public (4 = READ-ONLY)
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\ValidCommunities" -Name "solutelab_noc_public" -Value 4 -PropertyType DWord -Force
+
+# 2. Restrict to Proxy VM LAN IP (Replace 192.168.10.50 with actual Proxy IP)
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\PermittedManagers" -Name "1" -Value "127.0.0.1" -PropertyType String -Force
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\PermittedManagers" -Name "2" -Value "192.168.10.50" -PropertyType String -Force
+
+# 3. Restart SNMP service to apply changes
+Restart-Service -Name "SNMP"
+```
+
+---
+
 
 ### **B. Register the Host in Zabbix Web UI**
 1. Navigate to **Data collection** ➔ **Hosts** ➔ **Create host**.
